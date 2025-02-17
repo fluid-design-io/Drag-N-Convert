@@ -15,6 +15,60 @@ class AppViewModel: ObservableObject {
     self.state = stateManager.loadState()
   }
 
+  // MARK: - Mock Data
+  static func mockEmpty() -> AppViewModel {
+    let vm = AppViewModel()
+    return vm
+  }
+
+  static func mockWithPresets() -> AppViewModel {
+    let vm = AppViewModel()
+    vm.state = AppState(presets: [
+      ConversionPreset(
+        nickname: "4K PNG",
+        maxWidth: 3840,
+        maxHeight: 2160,
+        format: .png,
+        quality: 90
+      ),
+      ConversionPreset(
+        nickname: "HD WEBP",
+        maxWidth: 1920,
+        maxHeight: 1080,
+        format: .webp,
+        quality: 85
+      ),
+      ConversionPreset(
+        nickname: "Mobile JPEG",
+        maxWidth: 1280,
+        maxHeight: 720,
+        format: .jpeg,
+        quality: 80
+      ),
+    ])
+    return vm
+  }
+
+  static func mockConverting() -> AppViewModel {
+    let vm = AppViewModel()
+    vm.currentBatch = ConversionBatch(
+      tasks: [
+        ConversionTask(
+          sourceURL: URL(fileURLWithPath: "/test1.jpg"),
+          preset: ConversionPreset(),
+          status: .converting,
+          progress: 0.7
+        ),
+        ConversionTask(
+          sourceURL: URL(fileURLWithPath: "/test2.jpg"),
+          preset: ConversionPreset()
+        ),
+      ],
+      startTime: Date()
+    )
+    return vm
+  }
+
   func addPreset(_ preset: ConversionPreset) {
     state.presets.append(preset)
     saveState()

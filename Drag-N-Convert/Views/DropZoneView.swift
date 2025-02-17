@@ -18,7 +18,7 @@ struct DropZoneView: View {
     .frame(width: 350)
     .background {
       RoundedRectangle(cornerRadius: 32, style: .continuous)
-        .fill(.ultraThinMaterial)
+        .fill(.regularMaterial)
     }
   }
 }
@@ -95,99 +95,17 @@ struct DragOverDelegate: DropDelegate {
   }
 }
 
-struct PresetDropZoneView: View {
-  let preset: ConversionPreset
-  let isHovered: Bool
-
-  var body: some View {
-    VStack(spacing: 8) {
-      Image(systemName: "arrow.down.circle")
-        .font(.system(size: 24))
-
-      Text(preset.nickname)
-        .font(.subheadline)
-        .lineLimit(1)
-
-      Text("\(preset.format.rawValue.uppercased())")
-        .font(.caption)
-        .foregroundStyle(.secondary)
-    }
-    .padding(.vertical, 16)
-    .frame(minWidth: 100, maxWidth: .infinity)
-    .background {
-      RoundedRectangle(cornerRadius: 24, style: .continuous)
-        .fill(isHovered ? .blue.opacity(0.1) : .secondary.opacity(0.1))
-    }
-    .overlay {
-      RoundedRectangle(cornerRadius: 24, style: .continuous)
-        .strokeBorder(isHovered ? .blue : .clear, lineWidth: 2)
-    }
-    .onChange(of: isHovered) { oldValue, newValue in
-      if newValue {
-        NSHapticFeedbackManager.defaultPerformer.perform(
-          .alignment, performanceTime: .default)
-      }
-    }
-  }
+#Preview("Drop Zone - Empty") {
+  DropZoneView()
+    .environmentObject(AppViewModel.mockEmpty())
 }
 
-struct ConversionProgressView: View {
-  let batch: ConversionBatch
-  @EnvironmentObject private var viewModel: AppViewModel
+#Preview("Drop Zone - Converting") {
+  DropZoneView()
+    .environmentObject(AppViewModel.mockConverting())
+}
 
-  var body: some View {
-    VStack(spacing: 16) {
-      switch batch.status {
-      case .completed:
-        VStack(spacing: 8) {
-          Image(systemName: "checkmark.circle.fill")
-            .font(.system(size: 32))
-            .foregroundStyle(.green)
-
-          Text("Conversion Complete")
-            .font(.headline)
-
-          if let outputDirectory = batch.outputDirectory {
-            Button("Open Folder") {
-              NSWorkspace.shared.selectFile(nil, inFileViewerRootedAtPath: outputDirectory.path)
-            }
-            .buttonStyle(.borderedProminent)
-          }
-        }
-
-      case .failed:
-        VStack(spacing: 8) {
-          Image(systemName: "xmark.circle.fill")
-            .font(.system(size: 32))
-            .foregroundStyle(.red)
-
-          Text("Conversion Failed")
-            .font(.headline)
-
-          Button("Try Again") {
-            viewModel.startConversion()
-          }
-          .buttonStyle(.borderedProminent)
-        }
-
-      case .converting:
-        VStack(spacing: 8) {
-          ProgressView(value: batch.progress) {
-            Text("\(Int(batch.progress * 100))%")
-              .font(.caption)
-              .foregroundStyle(.secondary)
-          }
-
-          Text("Converting \(batch.tasks.count) files...")
-            .font(.subheadline)
-            .foregroundStyle(.secondary)
-        }
-
-      case .pending:
-        ProgressView()
-      }
-    }
-    .padding(.vertical, 32)
-    .padding(.horizontal, 6)
-  }
+#Preview("Drop Zone - With Presets") {
+  DropZoneView()
+    .environmentObject(AppViewModel.mockWithPresets())
 }
