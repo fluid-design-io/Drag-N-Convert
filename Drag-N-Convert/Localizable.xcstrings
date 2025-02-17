@@ -115,6 +115,7 @@
       }
     },
     "About Drag-N-Convert" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {

@@ -32,7 +32,7 @@ struct PresetDropZoneView: View {
       }
       Spacer()
     }
-    .padding()
+    .padding(20)
     .frame(minWidth: 132, maxWidth: .infinity)
     .background {
       RoundedRectangle(cornerRadius: 30, style: .continuous)

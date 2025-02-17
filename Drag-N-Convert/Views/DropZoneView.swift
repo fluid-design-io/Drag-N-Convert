@@ -9,17 +9,18 @@ struct DropZoneView: View {
     VStack(spacing: 6) {
       if let batch = viewModel.currentBatch {
         ConversionProgressView(batch: batch)
+          .transition(.move(edge: .top).combined(with: .opacity))
       } else {
         LastUsedPresetView()
+          .transition(.move(edge: .bottom).combined(with: .opacity))
         PresetGridView()
+          .transition(.move(edge: .bottom).combined(with: .opacity))
       }
     }
     .padding(6)
     .frame(width: 420)
-    .background {
-      RoundedRectangle(cornerRadius: 36, style: .continuous)
-        .fill(.regularMaterial)
-    }
+    .background(.regularMaterial)
+    .clipShape(.rect(cornerRadius: 36, style: .continuous))
   }
 }
 
@@ -43,7 +44,7 @@ struct LastUsedPresetView: View {
       Text("Last Used Preset")
         .font(.subheadline)
         .foregroundStyle(.secondary)
-        .padding(12)
+        .padding(20)
     }
   }
 }

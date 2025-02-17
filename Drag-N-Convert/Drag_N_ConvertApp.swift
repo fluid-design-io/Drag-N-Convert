@@ -20,10 +20,10 @@ struct Drag_N_ConvertApp: App {
   }
 
   var body: some Scene {
-      MenuBarExtra(
-        String(localized: "[App Name]"),
-        systemImage: "arrow.triangle.2.circlepath"
-      ) {
+    MenuBarExtra(
+      String(localized: "[App Name]"),
+      systemImage: "arrow.triangle.2.circlepath"
+    ) {
       MenuBarView()
         .environmentObject(viewModel)
     }
@@ -37,7 +37,7 @@ struct Drag_N_ConvertApp: App {
     .windowResizability(.contentSize)
     .restorationBehavior(.disabled)
 
-    Window("About Drag-N-Convert", id: "about") {
+    Window("About \(String(localized: "[App Name]"))", id: "about") {
       AboutView()
         .toolbar(removing: .title)
         .toolbarBackground(.hidden, for: .windowToolbar)
