@@ -20,7 +20,10 @@ struct Drag_N_ConvertApp: App {
   }
 
   var body: some Scene {
-    MenuBarExtra("Drag-N-Convert", systemImage: "arrow.triangle.2.circlepath") {
+      MenuBarExtra(
+        String(localized: "[App Name]"),
+        systemImage: "arrow.triangle.2.circlepath"
+      ) {
       MenuBarView()
         .environmentObject(viewModel)
     }

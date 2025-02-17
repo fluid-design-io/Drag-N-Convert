@@ -12,7 +12,7 @@ struct AboutView: View {
         .frame(width: 160, height: 160)
         .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
 
-      Text("Drag-N-Convert")
+        Text(String(localized: "[App Name]"))
         .font(.system(.title, design: .rounded, weight: .bold))
 
       Text("Version \(appVersion) (\(buildNumber))")

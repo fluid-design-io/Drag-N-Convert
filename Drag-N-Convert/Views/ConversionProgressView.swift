@@ -3,6 +3,7 @@ import SwiftUI
 
 struct ConversionProgressView: View {
   let batch: ConversionBatch
+    @State private var isPlayingAnimation = true
   @EnvironmentObject private var viewModel: AppViewModel
 
   var body: some View {
@@ -13,6 +14,7 @@ struct ConversionProgressView: View {
           Image(systemName: "checkmark.circle.fill")
             .font(.system(size: 32))
             .foregroundStyle(.green)
+            .symbolEffect(.appear)
 
           Text("Conversion Complete")
             .font(.headline)
@@ -30,6 +32,7 @@ struct ConversionProgressView: View {
           Image(systemName: "xmark.circle.fill")
             .font(.system(size: 32))
             .foregroundStyle(.red)
+            .symbolEffect(.appear)
 
           Text("Conversion Failed")
             .font(.headline)

@@ -9,3 +9,8 @@ A simple and efficient image converter for macOS.
 ## Drag images to...
 
 Convert, Resize, Compress
+
+Available in:
+
+- English
+- Chinese (Simplified)

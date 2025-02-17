@@ -12,11 +12,11 @@ struct MenuBarView: View {
     }
     .keyboardShortcut("p")
     Divider()
-    Button("About Drag-N-Convert") {
+      Button("About \(String(localized: "[App Name]"))") {
       openWindow(id: "about")
     }
     Divider()
-    Button("Quit DragNConvert") {
+    Button("Quit \(String(localized: "[App Name]"))") {
       NSApplication.shared.terminate(nil)
     }
     .keyboardShortcut("q")
