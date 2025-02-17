@@ -9,7 +9,7 @@ struct AboutView: View {
     VStack(spacing: 20) {
       Image(nsImage: NSImage(named: "AppIcon") ?? NSImage())
         .resizable()
-        .frame(width: 128, height: 128)
+        .frame(width: 160, height: 160)
         .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
 
       Text("Drag-N-Convert")

@@ -1,0 +1,128 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "%@" : {
+
+    },
+    "%lld" : {
+
+    },
+    "%lld%%" : {
+
+    },
+    "%lld×%lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld×%2$lld"
+          }
+        }
+      }
+    },
+    "•" : {
+
+    },
+    "© 2025 Oliver Pan. All rights reserved." : {
+
+    },
+    "×" : {
+
+    },
+    "A simple and efficient image converter for macOS." : {
+
+    },
+    "About Drag-N-Convert" : {
+
+    },
+    "Add Preset" : {
+
+    },
+    "Choose..." : {
+
+    },
+    "Conversion Complete" : {
+
+    },
+    "Conversion Failed" : {
+
+    },
+    "Converting %lld files..." : {
+
+    },
+    "Current Path" : {
+
+    },
+    "Delete original after conversion" : {
+
+    },
+    "Delete Preset" : {
+
+    },
+    "Drag-N-Convert" : {
+
+    },
+    "Format" : {
+
+    },
+    "GitHub Repository" : {
+
+    },
+    "Height" : {
+
+    },
+    "Last Used Preset" : {
+
+    },
+    "Nickname" : {
+
+    },
+    "No Preset Selected" : {
+
+    },
+    "Open Folder" : {
+
+    },
+    "Output folder:" : {
+
+    },
+    "Presets" : {
+
+    },
+    "Presets…" : {
+
+    },
+    "Quality: %lld%%" : {
+
+    },
+    "Quit DragNConvert" : {
+
+    },
+    "Report an Issue" : {
+
+    },
+    "Save Changes" : {
+
+    },
+    "Select a preset to edit or create a new one." : {
+
+    },
+    "Try Again" : {
+
+    },
+    "Version %@ (%@)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Version %1$@ (%2$@)"
+          }
+        }
+      }
+    },
+    "Width" : {
+
+    }
+  },
+  "version" : "1.0"
+}

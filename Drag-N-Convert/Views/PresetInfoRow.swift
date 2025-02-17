@@ -2,7 +2,7 @@ import SwiftUI
 
 struct PresetInfoRow: View {
   let title: String  // An "1 letter" string representing the type of info, e.g. "w" for width
-  let value: String
+let value: LocalizedStringResource
 
   var body: some View {
     HStack(spacing: 4) {
