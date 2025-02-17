@@ -86,8 +86,18 @@ class AppViewModel: ObservableObject {
     saveState()
   }
 
+  func deletePresetAtIndexSet(_ indexSet: IndexSet) {
+    state.presets.remove(atOffsets: indexSet)
+    saveState()
+  }
+
+  func movePresets(from source: IndexSet, to destination: Int) {
+    state.presets.move(fromOffsets: source, toOffset: destination)
+    saveState()
+  }
+
   func handleFilesDropped(_ urls: [URL], preset: ConversionPreset) {
-    var tasks = urls.map { ConversionTask(sourceURL: $0, preset: preset) }
+    let tasks = urls.map { ConversionTask(sourceURL: $0, preset: preset) }
 
     // Create output directory in Desktop/Converted
     let outputDirectory = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask)

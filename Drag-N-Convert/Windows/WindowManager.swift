@@ -10,7 +10,7 @@ final class WindowManager: ObservableObject {
   private var cancellables = Set<AnyCancellable>()
 
   private let windowPadding: CGFloat = 20
-  private let desiredWidth: CGFloat = 350
+  private let desiredWidth: CGFloat = 420
   private let initialHeight: CGFloat = 200
 
   init(viewModel: AppViewModel) {

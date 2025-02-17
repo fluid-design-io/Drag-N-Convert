@@ -116,7 +116,7 @@ struct ConversionProgressView: View {
     )
   }
   .environmentObject(AppViewModel.mockEmpty())
-  .frame(width: 350)
+  .frame(width: 420)
   .padding()
   .background(.background)
 }

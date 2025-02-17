@@ -24,6 +24,24 @@ struct Drag_N_ConvertApp: App {
       MenuBarView()
         .environmentObject(viewModel)
     }
-    .menuBarExtraStyle(.window)
+    .menuBarExtraStyle(.menu)
+
+    Window("Presets", id: "presets") {
+      PresetsView()
+        .environmentObject(viewModel)
+        .windowMinimizeBehavior(.disabled)
+    }
+    .windowResizability(.contentSize)
+    .restorationBehavior(.disabled)
+
+    Window("About Drag-N-Convert", id: "about") {
+      AboutView()
+        .toolbar(removing: .title)
+        .toolbarBackground(.hidden, for: .windowToolbar)
+        .containerBackground(.thickMaterial, for: .window)
+        .windowMinimizeBehavior(.disabled)
+    }
+    .windowResizability(.contentSize)
+    .restorationBehavior(.disabled)
   }
 }

@@ -15,9 +15,9 @@ struct DropZoneView: View {
       }
     }
     .padding(6)
-    .frame(width: 350)
+    .frame(width: 420)
     .background {
-      RoundedRectangle(cornerRadius: 32, style: .continuous)
+      RoundedRectangle(cornerRadius: 36, style: .continuous)
         .fill(.regularMaterial)
     }
   }
@@ -28,17 +28,23 @@ struct LastUsedPresetView: View {
   @State private var hoveredPresetId: UUID?
 
   var body: some View {
-    PresetDropZoneView(
-      preset: viewModel.state.lastUsedPreset,
-      isHovered: hoveredPresetId == viewModel.state.lastUsedPreset.id
-    )
-    .onDrop(
-      of: [.fileURL],
-      delegate: DragOverDelegate(
+    ZStack(alignment: .topTrailing) {
+      PresetDropZoneView(
         preset: viewModel.state.lastUsedPreset,
-        viewModel: viewModel,
-        hoveredPresetId: $hoveredPresetId
-      ))
+        isHovered: hoveredPresetId == viewModel.state.lastUsedPreset.id
+      )
+      .onDrop(
+        of: [.fileURL],
+        delegate: DragOverDelegate(
+          preset: viewModel.state.lastUsedPreset,
+          viewModel: viewModel,
+          hoveredPresetId: $hoveredPresetId
+        ))
+      Text("Last Used Preset")
+        .font(.subheadline)
+        .foregroundStyle(.secondary)
+        .padding(12)
+    }
   }
 }
 
@@ -47,7 +53,7 @@ struct PresetGridView: View {
   @State private var hoveredPresetId: UUID?
 
   var body: some View {
-    LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 6) {
+    LazyVGrid(columns: [GridItem(.adaptive(minimum: 132))], spacing: 6) {
       ForEach(viewModel.state.presets) { preset in
         PresetDropZoneView(preset: preset, isHovered: hoveredPresetId == preset.id)
           .onDrop(
