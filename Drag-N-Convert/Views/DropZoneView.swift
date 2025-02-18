@@ -13,8 +13,10 @@ struct DropZoneView: View {
       } else {
         LastUsedPresetView()
           .transition(.move(edge: .bottom).combined(with: .opacity))
-        PresetGridView()
-          .transition(.move(edge: .bottom).combined(with: .opacity))
+        if viewModel.state.presets.count > 0 {
+          PresetGridView()
+            .transition(.move(edge: .bottom).combined(with: .opacity))
+        }
       }
     }
     .padding(6)

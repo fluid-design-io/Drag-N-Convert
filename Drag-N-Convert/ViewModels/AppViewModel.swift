@@ -100,10 +100,13 @@ class AppViewModel: ObservableObject {
   func handleFilesDropped(_ urls: [URL], preset: ConversionPreset) {
     let tasks = urls.map { ConversionTask(sourceURL: $0, preset: preset) }
 
-    // Create output directory in Desktop/Converted
-    let outputDirectory = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask)
-      .first?
-      .appendingPathComponent("Converted", isDirectory: true)
+    // Use preset's output path if available, otherwise use source directory
+    let outputDirectory: URL? =
+      if let customPath = preset.outputPath {
+        URL(fileURLWithPath: customPath, isDirectory: true)
+      } else {
+        urls.first?.deletingLastPathComponent()
+      }
 
     currentBatch = ConversionBatch(
       tasks: tasks,
@@ -142,13 +145,21 @@ class AppViewModel: ObservableObject {
 
         do {
           // Load the image with sequential access for better performance
-            let image = try VIPSImage(fromFilePath: task.sourceURL.path)
+          let image = try VIPSImage(fromFilePath: task.sourceURL.path)
 
-          // Create thumbnail with specified dimensions and crop mode
+          // Calculate new dimensions while maintaining aspect ratio
+          let newDimensions = calculateNewDimensions(
+            currentWidth: image.size.width,
+            currentHeight: image.size.height,
+            maxWidth: task.preset.maxWidth,
+            maxHeight: task.preset.maxHeight
+          )
+
+          // Resize image without cropping
           let processedImage = try image.thumbnailImage(
-            width: task.preset.maxWidth,
-            height: task.preset.maxHeight,
-            crop: .attention
+            width: newDimensions.width,
+            height: newDimensions.height,
+            crop: .none  // Changed from .attention to .none
           )
 
           // Update progress
@@ -178,15 +189,15 @@ class AppViewModel: ObservableObject {
               let pngData = try processedImage.exportedPNG()
               try Data(pngData).write(to: outputURL)
             case .webp:
-                let webpData = try processedImage.exported(
-                    suffix: "webp"
+              let webpData = try processedImage.exported(
+                suffix: ".webp"
               )
               try Data(webpData).write(to: outputURL)
             case .heif:
-                let heifData = try processedImage.exported(
-                    suffix: "heic"
-                )
-                try Data(heifData).write(to: outputURL)
+              let heifData = try processedImage.exported(
+                suffix: ".heic"
+              )
+              try Data(heifData).write(to: outputURL)
             }
 
             task.status = .completed
