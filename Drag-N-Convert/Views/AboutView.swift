@@ -6,7 +6,7 @@ struct AboutView: View {
   private let buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
 
   var body: some View {
-    HStack {
+    HStack(spacing: 24) {
       Image(nsImage: NSImage(named: "AppIcon") ?? NSImage())
         .resizable()
         .frame(width: 160, height: 160)
@@ -25,9 +25,6 @@ struct AboutView: View {
             .font(.body)
             .multilineTextAlignment(.center)
             .foregroundStyle(.secondary)
-          Text("© 2025 Oliver Pan. All rights reserved.")
-            .font(.caption)
-            .foregroundStyle(.secondary)
 
           Link(
             "GitHub Repository",
@@ -40,13 +37,44 @@ struct AboutView: View {
             destination: URL(string: "https://github.com/fluid-design-io/drag-n-convert/issues")!
           )
           .buttonStyle(.link)
+
+          HStack(spacing: 16) {
+            VStack(alignment: .leading, spacing: 6) {
+              Text("Author")
+                .font(.subheadline)
+                .fontWeight(.semibold)
+                .padding(.top, 8)
+
+              Link(
+                "Oliver Pan",
+                destination: URL(string: "https://oliverpan.vercel.app")!
+              )
+              .font(.caption)
+              .buttonStyle(.link)
+            }
+            VStack(alignment: .leading, spacing: 6) {
+              Text("Credits")
+                .font(.subheadline)
+                .fontWeight(.semibold)
+                .padding(.top, 8)
+
+              Link(
+                "SwiftVips",
+                destination: URL(string: "https://github.com/gh123man/SwiftVips")!
+              )
+              .font(.caption)
+              .buttonStyle(.link)
+            }
+          }
         }
         .padding(.top, 16)
 
       }
       .padding()
     }
-    .padding(36)
+    .padding(.horizontal, 36)
+    .padding(.top, 24)
+    .padding(.bottom, 36)
     .frame(width: 540)
   }
 }

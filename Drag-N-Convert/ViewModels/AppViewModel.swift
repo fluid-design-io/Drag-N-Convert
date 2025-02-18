@@ -11,9 +11,45 @@ class AppViewModel: ObservableObject {
   private let stateManager: StateManager
   private var mockConversionTask: Task<Void, Never>?
 
+  private static let defaultPresets = [
+    ConversionPreset(
+      nickname: "4K PNG",
+      maxWidth: 3840,
+      maxHeight: 2160,
+      format: .png,
+      quality: 90
+    ),
+    ConversionPreset(
+      nickname: "HD WEBP",
+      maxWidth: 1920,
+      maxHeight: 1080,
+      format: .webp,
+      quality: 85
+    ),
+    ConversionPreset(
+      nickname: "Mobile JPEG",
+      maxWidth: 1280,
+      maxHeight: 720,
+      format: .jpeg,
+      quality: 80
+    ),
+    ConversionPreset(
+      nickname: "Mobile HEIC",
+      maxWidth: 1280,
+      maxHeight: 720,
+      format: .heif,
+      quality: 80
+    ),
+  ]
+
   init(stateManager: StateManager = StateManager()) {
     self.stateManager = stateManager
     self.state = stateManager.loadState()
+
+    if state.presets.isEmpty {
+      state.presets = Self.defaultPresets
+      saveState()
+    }
   }
 
   // MARK: - Mock Data
@@ -24,29 +60,7 @@ class AppViewModel: ObservableObject {
 
   static func mockWithPresets() -> AppViewModel {
     let vm = AppViewModel()
-    vm.state = AppState(presets: [
-      ConversionPreset(
-        nickname: "4K PNG",
-        maxWidth: 3840,
-        maxHeight: 2160,
-        format: .png,
-        quality: 90
-      ),
-      ConversionPreset(
-        nickname: "HD WEBP",
-        maxWidth: 1920,
-        maxHeight: 1080,
-        format: .webp,
-        quality: 85
-      ),
-      ConversionPreset(
-        nickname: "Mobile JPEG",
-        maxWidth: 1280,
-        maxHeight: 720,
-        format: .jpeg,
-        quality: 80
-      ),
-    ])
+    vm.state = AppState(presets: defaultPresets)
     return vm
   }
 

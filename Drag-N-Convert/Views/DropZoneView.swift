@@ -10,19 +10,41 @@ struct DropZoneView: View {
       if let batch = viewModel.currentBatch {
         ConversionProgressView(batch: batch)
           .transition(.move(edge: .top).combined(with: .opacity))
+      } else if viewModel.state.presets.isEmpty {
+        NoPresetsView()
+          .transition(.move(edge: .bottom).combined(with: .opacity))
       } else {
         LastUsedPresetView()
           .transition(.move(edge: .bottom).combined(with: .opacity))
-        if viewModel.state.presets.count > 0 {
-          PresetGridView()
-            .transition(.move(edge: .bottom).combined(with: .opacity))
-        }
+        PresetGridView()
+          .transition(.move(edge: .bottom).combined(with: .opacity))
       }
     }
     .padding(6)
     .frame(width: 420)
     .background(.regularMaterial)
     .clipShape(.rect(cornerRadius: 36, style: .continuous))
+  }
+}
+
+struct NoPresetsView: View {
+  var body: some View {
+    VStack(spacing: 16) {
+      Image(systemName: "plus.square.dashed")
+        .font(.system(size: 48))
+        .foregroundStyle(.secondary)
+
+      Text("No Presets Available")
+        .font(.headline)
+
+      Text("Create a preset to start converting images")
+        .font(.subheadline)
+        .foregroundStyle(.secondary)
+        .multilineTextAlignment(.center)
+    }
+    .frame(height: 200)
+    .frame(maxWidth: .infinity)
+    .contentShape(Rectangle())
   }
 }
 

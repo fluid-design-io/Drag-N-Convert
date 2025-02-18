@@ -74,16 +74,6 @@
         }
       }
     },
-    "© 2025 Oliver Pan. All rights reserved." : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "© 2025 Oliver Pan。保留所有权利。"
-          }
-        }
-      }
-    },
     "×" : {
       "localizations" : {
         "zh-Hans" : {
@@ -114,23 +104,22 @@
         }
       }
     },
-    "About Drag-N-Convert" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "关于 Drag-N-Convert"
-          }
-        }
-      }
-    },
     "Add Preset" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "添加预设"
+          }
+        }
+      }
+    },
+    "Author" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "作者"
           }
         }
       }
@@ -171,6 +160,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "正在转换%lld个文件…"
+          }
+        }
+      }
+    },
+    "Create a preset to start converting images" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "创建一个预设以开始转换图像"
+          }
+        }
+      }
+    },
+    "Credits" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "鸣谢"
           }
         }
       }
@@ -265,6 +274,26 @@
         }
       }
     },
+    "No Presets Available" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无可用预设"
+          }
+        }
+      }
+    },
+    "Oliver Pan" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oliver Pan"
+          }
+        }
+      }
+    },
     "Open Folder" : {
       "localizations" : {
         "zh-Hans" : {
@@ -351,6 +380,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "选择要编辑的预设或创建一个新的预设。"
+          }
+        }
+      }
+    },
+    "SwiftVips" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "gh123man/SwiftVips"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "gh123man/SwiftVips"
           }
         }
       }
