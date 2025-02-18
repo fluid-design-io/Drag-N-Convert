@@ -11,7 +11,7 @@ struct ConversionPreset: Identifiable, Codable, Hashable {
   var deleteOriginal: Bool
 
   enum ImageFormat: String, Codable, CaseIterable {
-    case avif
+    case heif
     case png
     case webp
     case jpeg

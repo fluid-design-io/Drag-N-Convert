@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		692CAEAE2D644DDA00E4675B /* VIPS in Frameworks */ = {isa = PBXBuildFile; productRef = 692CAEAD2D644DDA00E4675B /* VIPS */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		69F15F172D625EE700D8CFA7 /* Drag-N-Convert.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Drag-N-Convert.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -23,6 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				692CAEAE2D644DDA00E4675B /* VIPS in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +70,7 @@
 			);
 			name = "Drag-N-Convert";
 			packageProductDependencies = (
+				692CAEAD2D644DDA00E4675B /* VIPS */,
 			);
 			productName = "Drag-N-Convert";
 			productReference = 69F15F172D625EE700D8CFA7 /* Drag-N-Convert.app */;
@@ -95,6 +101,9 @@
 			);
 			mainGroup = 69F15F0E2D625EE700D8CFA7;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				692CAEAC2D644DDA00E4675B /* XCRemoteSwiftPackageReference "swift-vips" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 69F15F182D625EE700D8CFA7 /* Products */;
 			projectDirPath = "";
@@ -324,6 +333,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		692CAEAC2D644DDA00E4675B /* XCRemoteSwiftPackageReference "swift-vips" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/t089/swift-vips";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.0.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		692CAEAD2D644DDA00E4675B /* VIPS */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 692CAEAC2D644DDA00E4675B /* XCRemoteSwiftPackageReference "swift-vips" */;
+			productName = VIPS;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 69F15F0F2D625EE700D8CFA7 /* Project object */;
 }

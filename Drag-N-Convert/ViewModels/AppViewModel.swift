@@ -1,4 +1,5 @@
 import SwiftUI
+import VIPS
 
 @MainActor
 class AppViewModel: ObservableObject {
@@ -122,47 +123,107 @@ class AppViewModel: ObservableObject {
     mockConversionTask?.cancel()
 
     mockConversionTask = Task {
-      // Simulate conversion process
       var updatedBatch = batch
       updatedBatch.startTime = Date()
 
-      // Update status to converting
-      for i in 0..<updatedBatch.tasks.count {
-        updatedBatch.tasks[i].status = .converting
+      // Create output directory if it doesn't exist
+      if let outputDir = batch.outputDirectory {
+        try? FileManager.default.createDirectory(at: outputDir, withIntermediateDirectories: true)
       }
-      currentBatch = updatedBatch
 
-      // Simulate progress for each task
+      // Process each task
       for taskIndex in 0..<updatedBatch.tasks.count {
         guard !Task.isCancelled else { return }
 
-        // Simulate progress updates
-        for progress in stride(from: 0.0, through: 1.0, by: 0.1) {
-          guard !Task.isCancelled else { return }
+        var task = updatedBatch.tasks[taskIndex]
+        task.status = .converting
+        updatedBatch.tasks[taskIndex] = task
+        currentBatch = updatedBatch
 
-          try? await Task.sleep(nanoseconds: 200_000_000)  // 0.2 seconds
+        do {
+          // Load the image with sequential access for better performance
+            let image = try VIPSImage(fromFilePath: task.sourceURL.path)
 
-          updatedBatch.tasks[taskIndex].progress = progress
+          // Create thumbnail with specified dimensions and crop mode
+          let processedImage = try image.thumbnailImage(
+            width: task.preset.maxWidth,
+            height: task.preset.maxHeight,
+            crop: .attention
+          )
+
+          // Update progress
+          task.progress = 0.5
+          updatedBatch.tasks[taskIndex] = task
           currentBatch = updatedBatch
+
+          // Prepare output filename
+          let outputFilename = task.sourceURL.deletingPathExtension().lastPathComponent
+          let outputExtension = task.preset.format.rawValue
+          let outputURL = batch.outputDirectory?
+            .appendingPathComponent(outputFilename)
+            .appendingPathExtension(outputExtension)
+
+          if let outputURL = outputURL {
+            // Export with format-specific options
+            switch task.preset.format {
+            case .jpeg:
+              let jpegData = try processedImage.exportedJpeg(
+                quality: Int(task.preset.quality),
+                optimizeCoding: true,
+                interlace: true,
+                strip: true
+              )
+              try Data(jpegData).write(to: outputURL)
+            case .png:
+              let pngData = try processedImage.exportedPNG()
+              try Data(pngData).write(to: outputURL)
+            case .webp:
+                let webpData = try processedImage.exported(
+                    suffix: "webp"
+              )
+              try Data(webpData).write(to: outputURL)
+            case .heif:
+                let heifData = try processedImage.exported(
+                    suffix: "heic"
+                )
+                try Data(heifData).write(to: outputURL)
+            }
+
+            task.status = .completed
+          } else {
+            throw NSError(
+              domain: "AppError",
+              code: -1,
+              userInfo: [NSLocalizedDescriptionKey: "Invalid output path"]
+            )
+          }
+
+        } catch {
+          task.status = .failed
+          task.error = error
         }
 
-        // Randomly simulate success/failure (90% success rate)
-        if Double.random(in: 0...1) < 0.9 {
-          updatedBatch.tasks[taskIndex].status = .completed
-        } else {
-          updatedBatch.tasks[taskIndex].status = .failed
-          updatedBatch.tasks[taskIndex].error = NSError(
-            domain: "MockError", code: -1,
-            userInfo: [
-              NSLocalizedDescriptionKey: "Mock conversion error"
-            ])
-        }
+        task.progress = 1.0
+        updatedBatch.tasks[taskIndex] = task
         currentBatch = updatedBatch
       }
 
       updatedBatch.endTime = Date()
       currentBatch = updatedBatch
     }
+  }
+
+  private func calculateNewDimensions(
+    currentWidth: Int, currentHeight: Int, maxWidth: Int, maxHeight: Int
+  ) -> (width: Int, height: Int) {
+    let widthRatio = Double(maxWidth) / Double(currentWidth)
+    let heightRatio = Double(maxHeight) / Double(currentHeight)
+    let scale = min(widthRatio, heightRatio, 1.0)
+
+    return (
+      width: Int(Double(currentWidth) * scale),
+      height: Int(Double(currentHeight) * scale)
+    )
   }
 
   private func saveState() {
@@ -174,7 +235,7 @@ class AppViewModel: ObservableObject {
 extension AppViewModel {
   func validateDrop(urls: [URL]) -> Bool {
     // Accept only image files
-    let validExtensions = ["jpg", "jpeg", "png", "gif", "heic", "webp"]
+    let validExtensions = ["jpg", "jpeg", "png", "heic", "webp"]
     return urls.allSatisfy { url in
       validExtensions.contains(url.pathExtension.lowercased())
     }

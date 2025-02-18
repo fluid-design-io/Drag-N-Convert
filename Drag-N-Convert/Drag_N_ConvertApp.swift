@@ -7,6 +7,7 @@
 
 import SwiftUI
 import UniformTypeIdentifiers
+import VIPS
 
 @main
 struct Drag_N_ConvertApp: App {
@@ -14,6 +15,14 @@ struct Drag_N_ConvertApp: App {
   @StateObject private var windowManager: WindowManager
 
   init() {
+    // Initialize VIPS
+    do {
+      try VIPS.start()
+    } catch {
+      print("Failed to initialize VIPS: \(error)")
+      exit(1)
+    }
+
     let vm = AppViewModel()
     self._viewModel = StateObject(wrappedValue: vm)
     self._windowManager = StateObject(wrappedValue: WindowManager(viewModel: vm))
