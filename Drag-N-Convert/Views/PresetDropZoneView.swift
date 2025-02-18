@@ -12,11 +12,10 @@ struct PresetDropZoneView: View {
 
   var body: some View {
     HStack {
-      VStack(alignment: .leading, spacing: 2) {
+      VStack(alignment: .leading, spacing: 6) {
         Text(preset.nickname)
           .font(.system(.subheadline, design: .rounded, weight: .medium))
           .lineLimit(1)
-          .padding(.bottom, 4)
 
         LazyVGrid(columns: columns, alignment: .leading, spacing: 6) {
           PresetInfoRow(title: "F", value: "\(preset.format.rawValue.uppercased())")
@@ -43,8 +42,8 @@ struct PresetDropZoneView: View {
                 ? .accentColor.opacity(0.04)
                 : Color.secondary.opacity(0.04),
               isHovered
-                ? .accentColor.opacity(0.1)
-                : Color.secondary.opacity(0.1),
+                ? .accentColor.opacity(0.12)
+                : Color.secondary.opacity(0.12),
             ]),
             startPoint: .top,
             endPoint: .bottom
