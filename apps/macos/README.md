@@ -10,6 +10,8 @@ Drag images to...
 
 🔄 Convert, 📐 Resize, 📸 Compress
 
+https://raw.githubusercontent.com/fluid-design-io/Drag-N-Convert/main/assets/DNCDemo.mp4
+
 Available in:
 
 - 🇺🇸 English
