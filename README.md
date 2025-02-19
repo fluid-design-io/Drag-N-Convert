@@ -10,6 +10,8 @@ Drag images to...
 
 🔄 Convert, 📐 Resize, 📸 Compress
 
+https://github.com/user-attachments/assets/fa3c39b7-851b-4cec-bac5-f533eade902f
+
 Available in:
 
 - 🇺🇸 English
