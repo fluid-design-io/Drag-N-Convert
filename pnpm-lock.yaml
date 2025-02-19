@@ -63,6 +63,9 @@ importers:
       '@workspace/typescript-config':
         specifier: workspace:*
         version: link:../../packages/typescript-config
+      class-variance-authority:
+        specifier: ^0.7.1
+        version: 0.7.1
       tailwindcss:
         specifier: ^4
         version: 4.0.7
