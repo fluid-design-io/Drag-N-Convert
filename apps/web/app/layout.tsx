@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Quicksand } from "next/font/google";
 import "@workspace/ui/globals.css";
 // import "@/app/globals.css"
 import Header from "@/components/header";
+import Footer from "@/components/layout/footer";
 import { Providers } from "@/components/providers";
 import { Metadata } from "next";
 
@@ -33,13 +34,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='en' suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${fontSans.variable} ${fontMono.variable} ${fontQuicksand.variable} font-[Quicksand] antialiased `}
       >
         <Providers>
           <Header />
           {children}
+          <Footer />
         </Providers>
       </body>
     </html>

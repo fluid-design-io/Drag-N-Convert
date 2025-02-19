@@ -12,17 +12,17 @@ function Header() {
   return (
     <Navbar>
       <NavbarContent>
-        <NavbarLinkItem href='/' className='flex items-center gap-2'>
-          <LogoIcon className='size-4' />
-          <span className='text-sm font-bold'>Drag-N-Convert</span>
+        <NavbarLinkItem href="/" className="flex items-center gap-2">
+          <LogoIcon className="size-4" />
+          <span className="text-sm font-bold">Drag-N-Convert</span>
         </NavbarLinkItem>
         <NavbarAuxiliaryContent>
           <ThemeToggle />
           <NavbarLinkItem
-            href='https://github.com/fluid-design-io/Drag-N-Convert'
-            className='rounded-full bg-accent'
+            href="https://github.com/fluid-design-io/Drag-N-Convert"
+            className="rounded-full bg-accent"
           >
-            <GithubIcon className='size-4' />
+            <GithubIcon className="size-4" />
           </NavbarLinkItem>
         </NavbarAuxiliaryContent>
       </NavbarContent>

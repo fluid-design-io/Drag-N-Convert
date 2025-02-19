@@ -11,7 +11,7 @@ export const Navbar = ({ className, ...props }: NavbarProps) => {
         "fixed left-1/2 top-(--banner-height) z-40 box-content w-full max-w-[88rem] -translate-x-1/2 border-b border-foreground/10 transition-colors lg:mt-2 lg:w-[calc(100%-1rem)] lg:rounded-2xl lg:border",
         "shadow-lg",
         "bg-background/80 backdrop-blur-lg",
-        className
+        className,
       )}
       {...props}
     />
@@ -25,7 +25,7 @@ export const NavbarContent = ({ className, ...props }: NavbarContentProps) => {
     <nav
       className={cn(
         "flex h-14 w-full flex-row items-center px-4 lg:h-12",
-        className
+        className,
       )}
       {...props}
     />
@@ -47,7 +47,7 @@ export const NavbarLinkItem = ({
       href={href}
       className={cn(
         "inline-flex items-center gap-1 p-2 text-muted-foreground transition-colors hover:text-accent-foreground data-[active=true]:text-primary [&_svg]:size-4",
-        className
+        className,
       )}
       {...props}
     />
@@ -64,7 +64,7 @@ export const NavbarAuxiliaryContent = ({
     <div
       className={cn(
         "flex flex-row items-center justify-end gap-1.5 flex-1",
-        className
+        className,
       )}
       {...props}
     />

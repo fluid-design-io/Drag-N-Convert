@@ -39,7 +39,7 @@ export function ThemeToggle({
 
   const container = cn(
     "inline-flex items-center rounded-full border p-1",
-    className
+    className,
   );
 
   if (mode === "light-dark") {
@@ -50,7 +50,7 @@ export function ThemeToggle({
         className={container}
         aria-label={`Toggle Theme`}
         onClick={() => setTheme(value === "light" ? "dark" : "light")}
-        data-theme-toggle=''
+        data-theme-toggle=""
         {...props}
       >
         {full.map(([key, Icon]) => {
@@ -59,7 +59,7 @@ export function ThemeToggle({
           return (
             <Icon
               key={key}
-              fill='currentColor'
+              fill="currentColor"
               className={cn(itemVariants({ active: value === key }))}
             />
           );
@@ -71,7 +71,7 @@ export function ThemeToggle({
   const value = mounted ? theme : null;
 
   return (
-    <div className={container} data-theme-toggle='' {...props}>
+    <div className={container} data-theme-toggle="" {...props}>
       {full.map(([key, Icon]) => (
         <button
           key={key}
@@ -79,7 +79,7 @@ export function ThemeToggle({
           className={cn(itemVariants({ active: value === key }))}
           onClick={() => setTheme(key)}
         >
-          <Icon className='size-full' fill='currentColor' />
+          <Icon className="size-full" fill="currentColor" />
         </button>
       ))}
     </div>
