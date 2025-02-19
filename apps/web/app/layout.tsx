@@ -2,6 +2,7 @@ import { Geist, Geist_Mono, Quicksand } from "next/font/google";
 
 import "@workspace/ui/globals.css";
 // import "@/app/globals.css"
+import Header from "@/components/header";
 import { Providers } from "@/components/providers";
 import { Metadata } from "next";
 
@@ -36,7 +37,10 @@ export default function RootLayout({
       <body
         className={`${fontSans.variable} ${fontMono.variable} ${fontQuicksand.variable} font-[Quicksand] antialiased `}
       >
-        <Providers>{children}</Providers>
+        <Providers>
+          <Header />
+          {children}
+        </Providers>
       </body>
     </html>
   );

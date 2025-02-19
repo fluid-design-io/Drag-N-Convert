@@ -1,5 +1,7 @@
+import icon from "@/app/icon.png";
 import { cn } from "@workspace/ui/lib/utils";
 import { ChevronRightIcon } from "lucide-react";
+import Image from "next/image";
 import { FC } from "react";
 import { ContinousCardDesktop } from "./continous-card";
 
@@ -23,12 +25,8 @@ const HeroSection: FC = () => {
           <div className='px-6 lg:px-0 lg:pt-4'>
             <div className='mx-auto max-w-2xl'>
               <div className='max-w-lg'>
-                <img
-                  className='h-11'
-                  src='https://tailwindui.com/plus-assets/img/logos/mark.svg?color=primary&shade=600'
-                  alt='Your Company'
-                />
-                <div className='mt-24 sm:mt-32 lg:mt-16'>
+                <Image src={icon} alt='icon' className='size-16' />
+                <div className='mt-20 sm:mt-24 lg:mt-12'>
                   <a href='#' className='inline-flex space-x-6'>
                     <span className='rounded-full bg-primary/10 px-3 py-1 text-sm/6 font-semibold text-primary ring-1 ring-primary/10 ring-inset'>
                       What's new
@@ -48,7 +46,8 @@ const HeroSection: FC = () => {
                   Done
                 </h1>
                 <p className='mt-6 text-lg/8 text-muted-foreground'>
-                  Drag and drop images to convert, resize, and compress them.
+                  Drag and drop images to <br /> 🔄 Convert, 📐 Resize and 📸
+                  Compress
                 </p>
                 <div className='mt-10 flex items-center gap-x-6'>
                   <a
