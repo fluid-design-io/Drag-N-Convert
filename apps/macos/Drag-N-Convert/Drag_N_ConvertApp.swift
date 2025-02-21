@@ -14,6 +14,9 @@ struct Drag_N_ConvertApp: App {
   @StateObject private var viewModel = AppViewModel()
   @StateObject private var windowManager: WindowManager
 
+  @Environment(\.openWindow) private var openWindow
+  @Environment(\.dismissWindow) private var dismissWindow
+
   init() {
     print("📱 Initializing DragNConvertApp")
     // Initialize VIPS
@@ -63,10 +66,10 @@ struct Drag_N_ConvertApp: App {
     .windowResizability(.contentSize)
     .restorationBehavior(.disabled)
 
-    // Add the drop zone window
     DropZoneWindow(
       viewModel: viewModel,
       windowManager: windowManager
     )
   }
+
 }

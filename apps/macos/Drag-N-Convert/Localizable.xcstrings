@@ -125,7 +125,14 @@
       }
     },
     "Choose a custom output location" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择自定义输出位置"
+          }
+        }
+      }
     },
     "Choose..." : {
       "localizations" : {
@@ -133,17 +140,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "选择…"
-          }
-        }
-      }
-    },
-    "Conversion Complete" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "转换完成"
           }
         }
       }
@@ -159,7 +155,14 @@
       }
     },
     "Converted Files" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "转换的文件"
+          }
+        }
+      }
     },
     "Converting %lld files..." : {
       "localizations" : {
@@ -191,19 +194,25 @@
         }
       }
     },
-    "Current Path" : {
-      "extractionState" : "stale",
+    "Custom Location" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "当前路径"
+            "value" : "自定义路径"
           }
         }
       }
     },
     "Delete %lld Presets" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "删除 %lld 个预设"
+          }
+        }
+      }
     },
     "Delete original after conversion" : {
       "localizations" : {
@@ -226,10 +235,24 @@
       }
     },
     "Drag files to copy them" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "拖拽文件"
+          }
+        }
+      }
     },
     "Drop Zone" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "拖拽框"
+          }
+        }
+      }
     },
     "Duplicate Preset" : {
       "localizations" : {
@@ -242,10 +265,24 @@
       }
     },
     "Files will be saved alongside the original images" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "文件将与原始图像一起保存"
+          }
+        }
+      }
     },
     "Files will only be available in the conversion window" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "文件仅在转换窗口中可用"
+          }
+        }
+      }
     },
     "Format" : {
       "localizations" : {
@@ -327,28 +364,6 @@
         }
       }
     },
-    "Open Folder" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "打开文件夹"
-          }
-        }
-      }
-    },
-    "Output folder:" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "导出路径"
-          }
-        }
-      }
-    },
     "Presets" : {
       "localizations" : {
         "zh-Hans" : {
@@ -399,6 +414,16 @@
         }
       }
     },
+    "Same as Source" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "相同源文件路径"
+          }
+        }
+      }
+    },
     "Save Changes" : {
       "localizations" : {
         "zh-Hans" : {
@@ -410,7 +435,14 @@
       }
     },
     "Save converted files in:" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存转换后的图片到："
+          }
+        }
+      }
     },
     "Select a preset to edit or create a new one." : {
       "localizations" : {
@@ -438,13 +470,12 @@
         }
       }
     },
-    "The image will be saved to the current directory." : {
-      "extractionState" : "stale",
+    "Temporary Only" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "图像将被保存到当前目录。"
+            "value" : "临时储存"
           }
         }
       }

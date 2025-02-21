@@ -18,7 +18,7 @@ struct ConversionPreset: Identifiable, Codable, Hashable {
     case jpeg
   }
 
-  enum OutputLocation: String, Codable, CaseIterable {
+  enum OutputLocation: LocalizedStringResource, Codable, CaseIterable {
     case temporary = "Temporary Only"
     case sourceDirectory = "Same as Source"
     case custom = "Custom Location"

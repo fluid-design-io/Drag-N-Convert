@@ -18,6 +18,8 @@ struct DropZoneWindow: Scene {
     }
     .defaultPosition(.trailing)
     .defaultSize(width: 436, height: 200)
+      // MARK: Need this for initial drag to work
+      .defaultLaunchBehavior(.presented)
     .windowStyle(.plain)
     .windowLevel(.floating)
     .windowResizability(.contentSize)

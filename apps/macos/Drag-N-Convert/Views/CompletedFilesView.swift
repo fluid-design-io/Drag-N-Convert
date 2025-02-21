@@ -55,22 +55,22 @@ struct DraggableFileRow: View {
 
   var preview: some View {
     HStack {
-      Image(nsImage: NSImage(contentsOf: imageUrl)!)
-        .resizable()
-        .aspectRatio(contentMode: .fit)
-        .frame(width: 48, height: 48)
+      HStack {
+        Image(nsImage: NSImage(contentsOf: imageUrl)!)
+          .resizable()
+          .aspectRatio(contentMode: .fit)
+          .frame(width: 48, height: 48)
+      }
+      .padding(.horizontal, 8)
+      Text(task.outputURL?.lastPathComponent ?? "")
     }
-    .padding(8)
+    .padding(.horizontal, 8)
   }
 
   var body: some View {
-    HStack {
-      preview
-      Text(task.outputURL?.lastPathComponent ?? "")
-      Spacer()
-    }
-    .draggable(imageUrl) {
-      preview
-    }
+    preview
+      .draggable(imageUrl) {
+        preview
+      }
   }
 }

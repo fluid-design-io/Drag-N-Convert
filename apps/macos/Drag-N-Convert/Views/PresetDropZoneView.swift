@@ -29,11 +29,11 @@ struct PresetDropZoneView: View {
   private var locationText: String {
     switch preset.outputLocation {
     case .temporary:
-      return "Temp Only"
+      return String(localized: "Temporary Only")
     case .sourceDirectory:
-      return "Same as Source"
+      return String(localized: "Same as Source")
     case .custom:
-      return preset.customOutputPath ?? "Custom"
+      return preset.customOutputPath ?? String(localized: "Custom Location")
     }
   }
 
