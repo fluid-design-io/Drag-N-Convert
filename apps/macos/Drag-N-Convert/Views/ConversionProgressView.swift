@@ -46,9 +46,7 @@ struct ConversionProgressView: View {
         ProgressView()
       }
     }
-    .padding(.vertical, 32)
-    .padding(.horizontal, 24)
-    .frame(minHeight: 200)
+    .frame(minWidth: 420, minHeight: 300)
     .animation(.snappy, value: batch.status)
   }
 }

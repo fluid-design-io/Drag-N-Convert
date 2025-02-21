@@ -10,13 +10,15 @@ final class DragMonitor: ObservableObject {
 
   private static let fileOptions: [NSPasteboard.ReadingOptionKey: Any] = [
     .urlReadingFileURLsOnly: true,
-    .urlReadingContentsConformToTypes: [UTType.image.identifier],
-    NSPasteboard.ReadingOptionKey(rawValue: "NSPasteboardURLReadingSecurityScopedFileURLsKey"):
-      kCFBooleanTrue as Any,
+    .urlReadingContentsConformToTypes: [
+      UTType.jpeg.identifier,
+      UTType.png.identifier,
+      UTType.webP.identifier,
+      UTType.heic.identifier,
+    ],
   ]
 
   init() {
-    lastChangeCount = dragPasteboard.changeCount
     setupMonitor()
   }
 

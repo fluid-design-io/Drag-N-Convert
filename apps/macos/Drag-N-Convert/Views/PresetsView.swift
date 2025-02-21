@@ -2,13 +2,13 @@ import SwiftUI
 
 struct PresetsView: View {
   @EnvironmentObject private var viewModel: AppViewModel
-  @State private var selectedPreset: ConversionPreset?
+  @State private var selectedPresets: Set<ConversionPreset> = []
 
   private func addPreset() {
     withAnimation {
       let newPreset = ConversionPreset(nickname: "Untitled Preset")
       viewModel.addPreset(newPreset)
-      selectedPreset = newPreset
+      selectedPresets = [newPreset]
     }
   }
 
@@ -18,7 +18,7 @@ struct PresetsView: View {
       newPreset.id = UUID()
       newPreset.nickname += " Copy"
       viewModel.addPreset(newPreset)
-      selectedPreset = newPreset
+      selectedPresets = [newPreset]
     }
   }
 
@@ -26,9 +26,13 @@ struct PresetsView: View {
     withAnimation {
       // select the previous preset (if it exists)
       if let index = viewModel.state.presets.firstIndex(of: preset) {
-        selectedPreset = index > 0 ? viewModel.state.presets[index - 1] : nil
+        if index > 0 {
+          selectedPresets = [viewModel.state.presets[index - 1]]
+        } else {
+          selectedPresets = []
+        }
       } else {
-        selectedPreset = nil
+        selectedPresets = []
       }
       viewModel.deletePreset(preset)
     }
@@ -39,14 +43,14 @@ struct PresetsView: View {
       viewModel.updatePreset(preset)
       // Update selection to reference the new preset instance
       if let updatedPreset = viewModel.state.presets.first(where: { $0.id == preset.id }) {
-        selectedPreset = updatedPreset
+        selectedPresets = [updatedPreset]
       }
     }
   }
 
   var body: some View {
     NavigationSplitView {
-      List(selection: $selectedPreset) {
+      List(selection: $selectedPresets) {
         ForEach(viewModel.state.presets) { preset in
           NavigationLink(value: preset) {
             VStack(alignment: .leading) {
@@ -65,25 +69,40 @@ struct PresetsView: View {
           }
           .tag(preset)
           .contextMenu {
-            Button {
-              addPreset()
-            } label: {
-              Label("Add Preset", systemImage: "plus")
-            }
-            Button {
-              duplicatePreset(preset)
-            } label: {
-              Label("Duplicate Preset", systemImage: "square.on.square")
+            if selectedPresets.count <= 1 {
+              Button {
+                addPreset()
+              } label: {
+                Label("Add Preset", systemImage: "plus")
+              }
+              Button {
+                duplicatePreset(preset)
+              } label: {
+                Label("Duplicate Preset", systemImage: "square.on.square")
+              }
+
+              Divider()
             }
 
-            Divider()
             Button(
               role: .destructive,
               action: {
-                deletePreset(preset)
+                if selectedPresets.count > 1 {
+                  // Delete all selected presets
+                  withAnimation {
+                    selectedPresets.forEach { viewModel.deletePreset($0) }
+                    selectedPresets = []
+                  }
+                } else {
+                  deletePreset(preset)
+                }
               }
             ) {
-              Label("Delete Preset", systemImage: "trash")
+              Label(
+                selectedPresets.count > 1
+                  ? "Delete \(selectedPresets.count) Presets" : "Delete Preset",
+                systemImage: "trash"
+              )
             }
           }
         }
@@ -100,7 +119,7 @@ struct PresetsView: View {
       .navigationSplitViewColumnWidth(min: 180, ideal: 200, max: 250)
       .navigationTitle("Presets")
     } detail: {
-      if let preset = selectedPreset {
+      if let preset = selectedPresets.first {
         PresetFormView(
           preset: preset,
           onSave: savePreset,
