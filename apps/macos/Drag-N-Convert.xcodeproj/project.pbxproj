@@ -14,9 +14,22 @@
 		69F15F172D625EE700D8CFA7 /* Drag-N-Convert.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Drag-N-Convert.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		69FDED252D68398000E1797C /* Exceptions for "Drag-N-Convert" folder in "Drag-N-Convert" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 69F15F162D625EE700D8CFA7 /* Drag-N-Convert */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		69F15F192D625EE700D8CFA7 /* Drag-N-Convert */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				69FDED252D68398000E1797C /* Exceptions for "Drag-N-Convert" folder in "Drag-N-Convert" target */,
+			);
 			path = "Drag-N-Convert";
 			sourceTree = "<group>";
 		};
@@ -274,6 +287,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Drag-N-Convert/Info.plist";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -304,6 +318,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Drag-N-Convert/Info.plist";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";

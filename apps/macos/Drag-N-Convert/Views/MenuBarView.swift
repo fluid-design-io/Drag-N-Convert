@@ -2,7 +2,9 @@ import SwiftUI
 
 struct MenuBarView: View {
   @EnvironmentObject private var viewModel: AppViewModel
+  @EnvironmentObject private var windowManager: WindowManager
   @Environment(\.openWindow) private var openWindow
+  @Environment(\.dismissWindow) private var dismissWindow
 
   var body: some View {
     Button("Presets…") {
@@ -11,8 +13,13 @@ struct MenuBarView: View {
       openWindow(id: "presets")
     }
     .keyboardShortcut("p")
+    .onAppear {
+      print("🎯 Setting up window management from MenuBarView")
+      windowManager.openWindow = { openWindow(id: $0) }
+      windowManager.dismissWindow = { dismissWindow(id: $0) }
+    }
     Divider()
-      Button("About \(String(localized: "[App Name]"))") {
+    Button("About \(String(localized: "[App Name]"))") {
       openWindow(id: "about")
     }
     Divider()

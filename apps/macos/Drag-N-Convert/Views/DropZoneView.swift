@@ -21,9 +21,10 @@ struct DropZoneView: View {
       }
     }
     .padding(6)
-    .frame(width: 420)
+    .frame(width:420)
     .background(.regularMaterial)
     .clipShape(.rect(cornerRadius: 36, style: .continuous))
+    .padding(.trailing, 16) // Floating padding
   }
 }
 
@@ -42,7 +43,6 @@ struct NoPresetsView: View {
         .foregroundStyle(.secondary)
         .multilineTextAlignment(.center)
     }
-    .frame(height: 200)
     .frame(maxWidth: .infinity)
     .contentShape(Rectangle())
   }

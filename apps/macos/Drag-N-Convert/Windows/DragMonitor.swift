@@ -54,24 +54,29 @@ final class DragMonitor: ObservableObject {
   }
 
   private func checkForImageFiles() {
+    print("🔍 Checking for image files in pasteboard")
     if dragPasteboard.canReadObject(forClasses: [NSURL.self], options: Self.fileOptions),
       let urls = dragPasteboard.readObjects(forClasses: [NSURL.self], options: Self.fileOptions)
         as? [URL],
       !urls.isEmpty
     {
+      print("✅ Found image URLs:", urls)
       isDraggingImages = true
     }
   }
 
   func getImageURLs() -> [URL]? {
+    print("📥 Getting image URLs from pasteboard")
     guard isDraggingImages,
       dragPasteboard.canReadObject(forClasses: [NSURL.self], options: Self.fileOptions),
       let urls = dragPasteboard.readObjects(forClasses: [NSURL.self], options: Self.fileOptions)
         as? [URL],
       !urls.isEmpty
     else {
+      print("❌ No valid image URLs found")
       return nil
     }
+    print("✅ Retrieved URLs:", urls)
     return urls
   }
 }

@@ -46,7 +46,7 @@ struct PresetDropZoneView: View {
 
         LazyVGrid(columns: columns, alignment: .leading, spacing: 6) {
           PresetInfoRow(title: "F", value: "\(preset.format.rawValue.uppercased())")
-            PresetInfoRow(title: "Q", value: "\(preset.quality)")
+          PresetInfoRow(title: "Q", value: "\(preset.quality)")
           PresetInfoRow(title: "W", value: "\(preset.maxWidth)")
           PresetInfoRow(title: "H", value: "\(preset.maxHeight)")
         }

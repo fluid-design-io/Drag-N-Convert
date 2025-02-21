@@ -15,17 +15,23 @@ struct Drag_N_ConvertApp: App {
   @StateObject private var windowManager: WindowManager
 
   init() {
+    print("📱 Initializing DragNConvertApp")
     // Initialize VIPS
     do {
       try VIPS.start()
+      print("✅ VIPS initialized successfully")
     } catch {
-      print("Failed to initialize VIPS: \(error)")
+      print("❌ Failed to initialize VIPS:", error)
       exit(1)
     }
 
     let vm = AppViewModel()
     self._viewModel = StateObject(wrappedValue: vm)
-    self._windowManager = StateObject(wrappedValue: WindowManager(viewModel: vm))
+    // Initialize with empty actions first
+    self._windowManager = StateObject(
+      wrappedValue: WindowManager(viewModel: vm))
+
+    print("✅ App initialization complete")
   }
 
   var body: some Scene {
@@ -35,6 +41,7 @@ struct Drag_N_ConvertApp: App {
     ) {
       MenuBarView()
         .environmentObject(viewModel)
+        .environmentObject(windowManager)
     }
     .menuBarExtraStyle(.menu)
 
@@ -55,5 +62,11 @@ struct Drag_N_ConvertApp: App {
     }
     .windowResizability(.contentSize)
     .restorationBehavior(.disabled)
+
+    // Add the drop zone window
+    DropZoneWindow(
+      viewModel: viewModel,
+      windowManager: windowManager
+    )
   }
 }

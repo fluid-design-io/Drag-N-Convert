@@ -3,9 +3,8 @@ import VIPS
 
 @MainActor
 class AppViewModel: ObservableObject {
-  @Published private(set) var state: AppState
+  @Published var state: AppState
   @Published var currentBatch: ConversionBatch?
-  @Published var isDropZoneVisible = false
   @Published var draggedFileURLs: [URL] = []
 
   private let stateManager: StateManager

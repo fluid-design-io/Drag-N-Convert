@@ -4,16 +4,16 @@ import SwiftUI
 
 @MainActor
 final class WindowManager: ObservableObject {
-  private var floatingPanel: FloatingPanel?
+  @Published var isDropZoneVisible = false
   private let dragMonitor: DragMonitor
   private var viewModel: AppViewModel
   private var cancellables = Set<AnyCancellable>()
 
-  private let windowPadding: CGFloat = 20
-  private let desiredWidth: CGFloat = 420
-  private let initialHeight: CGFloat = 200
+  var openWindow: ((String) -> Void)?
+  var dismissWindow: ((String) -> Void)?
 
   init(viewModel: AppViewModel) {
+    print("🏗️ Initializing WindowManager")
     self.viewModel = viewModel
     self.dragMonitor = DragMonitor()
     setupDragMonitor()
@@ -42,10 +42,7 @@ final class WindowManager: ObservableObject {
           // Add a small delay to show the completion state
           DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             if self?.viewModel.state.autoCloseAfterConversion == true {
-              DispatchQueue.main.asyncAfter(
-                deadline:
-                  .now() + 3
-              ) {
+              DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                 self?.hideFloatingPanel()
               }
             }
@@ -56,91 +53,55 @@ final class WindowManager: ObservableObject {
   }
 
   private func handleDrag() {
-    // ignore if already showing the drop zone
-    guard !viewModel.isDropZoneVisible else { return }
-
+    print("🔍 handleDrag - Current visibility:", isDropZoneVisible)
     if let urls = dragMonitor.getImageURLs() {
+      print("📁 Got image URLs:", urls)
       viewModel.draggedFileURLs = urls
       showFloatingPanel()
     }
   }
 
   private func handleMouseUp() {
-    // delay checking for successful drop
-    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-      // Only hide if we're not actively converting
-      if self.viewModel.currentBatch == nil {
+    print("👆 Mouse up detected")
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+      print(
+        "🔍 Checking if should hide panel - Batch:", self.viewModel.currentBatch != nil,
+        "Files:", !self.viewModel.draggedFileURLs.isEmpty,
+        "Dragging:", self.dragMonitor.isDraggingImages
+      )
+
+      // Hide panel if:
+      // 1. No active conversion batch AND
+      // 2. No dragged files OR not dragging anymore
+      if self.viewModel.currentBatch == nil
+        && (self.viewModel.draggedFileURLs.isEmpty || !self.dragMonitor.isDraggingImages)
+      {
         self.hideFloatingPanel()
       }
     }
   }
 
   private func showFloatingPanel() {
-    guard floatingPanel == nil else { return }
-
-    let screenFrame = NSScreen.main?.visibleFrame ?? .zero
-    let panelSize = NSSize(width: desiredWidth, height: initialHeight)
-    let panelOrigin = NSPoint(
-      x: screenFrame.maxX - panelSize.width - windowPadding,
-      y: screenFrame.midY - panelSize.height / 2
-    )
-
-    let panel = FloatingPanel(
-      contentRect: NSRect(origin: panelOrigin, size: panelSize),
-      backing: .buffered,
-      defer: false
-    )
-
-    let hostingView = NSHostingView(
-      rootView: DropZoneView()
-        .environmentObject(viewModel)
-    )
-    panel.contentView = hostingView
-
-    // Start with 0 alpha and slightly offset position
-    panel.alphaValue = 0.0
-    panel.setFrame(
-      NSRect(
-        origin: NSPoint(x: panel.frame.origin.x + windowPadding, y: panel.frame.origin.y),
-        size: panel.frame.size
-      ), display: false)
-
-    panel.orderFront(nil)
-
-    // Animate to final position and full opacity
-    NSAnimationContext.runAnimationGroup { context in
-      context.duration = 0.2
-      context.timingFunction = CAMediaTimingFunction(name: .default)
-      panel.animator().alphaValue = 1.0
-      panel.animator().setFrame(NSRect(origin: panelOrigin, size: panelSize), display: true)
-    }
-
-    self.floatingPanel = panel
-    viewModel.isDropZoneVisible = true
+    print("📱 Showing floating panel")
+    isDropZoneVisible = true
+    openWindow?("dropzone")
+    print("✅ Panel visibility set to true")
   }
 
   private func hideFloatingPanel() {
-    guard let panel = floatingPanel else { return }
+    print("🚫 Hiding floating panel")
 
-    // Animate out
-    NSAnimationContext.runAnimationGroup { context in
-      context.duration = 0.2
-      context.timingFunction = CAMediaTimingFunction(name: .default)
-      panel.animator().alphaValue = 0.0
-      panel.animator().setFrame(
-        NSRect(
-          origin: NSPoint(x: panel.frame.origin.x + windowPadding, y: panel.frame.origin.y),
-          size: panel.frame.size
-        ), display: true)
-    } completionHandler: {
-      panel.close()
-      self.floatingPanel = nil
-      self.viewModel.isDropZoneVisible = false
+    // First update state and trigger animation
+    isDropZoneVisible = false
+    viewModel.draggedFileURLs = []
+    viewModel.currentBatch = nil
+    print("✅ Panel visibility set to false")
 
-      // Reset all states after hiding the panel
-      self.viewModel.draggedFileURLs = []
-      self.viewModel.currentBatch = nil
+    // Wait for animation to complete before dismissing window
+    Task { @MainActor in
+      try? await Task.sleep(for: .milliseconds(380))  // Match animation duration
+      print("🔒 Dismissing window after animation")
+      dismissWindow?("dropzone")
     }
-
   }
 }
