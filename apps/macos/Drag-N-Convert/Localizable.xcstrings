@@ -124,6 +124,9 @@
         }
       }
     },
+    "Choose a custom output location" : {
+
+    },
     "Choose..." : {
       "localizations" : {
         "zh-Hans" : {
@@ -135,6 +138,7 @@
       }
     },
     "Conversion Complete" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -153,6 +157,9 @@
           }
         }
       }
+    },
+    "Converted Files" : {
+
     },
     "Converting %lld files..." : {
       "localizations" : {
@@ -185,6 +192,7 @@
       }
     },
     "Current Path" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -214,6 +222,9 @@
         }
       }
     },
+    "Drag files to copy them" : {
+
+    },
     "Duplicate Preset" : {
       "localizations" : {
         "zh-Hans" : {
@@ -223,6 +234,12 @@
           }
         }
       }
+    },
+    "Files will be saved alongside the original images" : {
+
+    },
+    "Files will only be available in the conversion window" : {
+
     },
     "Format" : {
       "localizations" : {
@@ -305,6 +322,7 @@
       }
     },
     "Open Folder" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -315,6 +333,7 @@
       }
     },
     "Output folder:" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -384,6 +403,9 @@
         }
       }
     },
+    "Save converted files in:" : {
+
+    },
     "Select a preset to edit or create a new one." : {
       "localizations" : {
         "zh-Hans" : {
@@ -411,6 +433,7 @@
       }
     },
     "The image will be saved to the current directory." : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {

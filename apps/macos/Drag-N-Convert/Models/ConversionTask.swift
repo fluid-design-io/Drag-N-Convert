@@ -7,6 +7,7 @@ struct ConversionTask: Identifiable {
   var status: Status = .pending
   var progress: Double = 0
   var error: Error?
+  var outputURL: URL?
 
   enum Status {
     case pending
@@ -22,6 +23,7 @@ struct ConversionBatch: Identifiable {
   var startTime: Date?
   var endTime: Date?
   var outputDirectory: URL?
+  var tempDirectory: URL?
 
   var progress: Double {
     guard !tasks.isEmpty else { return 0 }
@@ -39,5 +41,9 @@ struct ConversionBatch: Identifiable {
       return .converting
     }
     return .pending
+  }
+
+  var hasCompletedTasks: Bool {
+    tasks.contains(where: { $0.status == .completed })
   }
 }

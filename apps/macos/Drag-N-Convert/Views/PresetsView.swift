@@ -126,7 +126,8 @@ struct PresetFormView: View {
   @State private var width: String
   @State private var height: String
   @State private var quality: Double
-  @State private var outputPath: String?
+  @State private var outputLocation: ConversionPreset.OutputLocation
+  @State private var customOutputPath: String?
   @State private var deleteOriginal: Bool
   private let presetId: UUID
   var onSave: (ConversionPreset) -> Void
@@ -155,7 +156,9 @@ struct PresetFormView: View {
     let isModified =
       nickname != preset.nickname || format != preset.format || widthInt != preset.maxWidth
       || heightInt != preset.maxHeight || Int(quality) != preset.quality
-      || outputPath != preset.outputPath || deleteOriginal != preset.deleteOriginal
+      || outputLocation != preset.outputLocation
+      || customOutputPath != preset.customOutputPath
+      || deleteOriginal != preset.deleteOriginal
 
     return isValid && isModified
   }
@@ -167,7 +170,8 @@ struct PresetFormView: View {
       maxHeight: Int(height) ?? 1080,
       format: format,
       quality: Int(quality),
-      outputPath: outputPath,
+      outputLocation: outputLocation,
+      customOutputPath: outputLocation == .custom ? customOutputPath : nil,
       deleteOriginal: deleteOriginal
     )
     preset.id = presetId
@@ -183,7 +187,8 @@ struct PresetFormView: View {
     self._width = State(initialValue: String(preset.maxWidth))
     self._height = State(initialValue: String(preset.maxHeight))
     self._quality = State(initialValue: Double(preset.quality))
-    self._outputPath = State(initialValue: preset.outputPath)
+    self._outputLocation = State(initialValue: preset.outputLocation)
+    self._customOutputPath = State(initialValue: preset.customOutputPath)
     self._deleteOriginal = State(initialValue: preset.deleteOriginal)
     self.presetId = preset.id
     self.onSave = onSave
@@ -226,38 +231,53 @@ struct PresetFormView: View {
 
       Section {
         VStack(alignment: .leading) {
-          HStack {
-            Text("Output folder:")
-            Spacer()
-            Button("Choose...") {
-              let panel = NSOpenPanel()
-              panel.canChooseDirectories = true
-              panel.canChooseFiles = false
-              panel.allowsMultipleSelection = false
+          Picker("Save converted files in:", selection: $outputLocation) {
+            ForEach(ConversionPreset.OutputLocation.allCases, id: \.self) { location in
+              Text(location.rawValue).tag(location)
+            }
+          }
 
-              if panel.runModal() == .OK {
-                outputPath = panel.url?.path
+          if outputLocation == .custom {
+            HStack {
+              if let path = customOutputPath {
+                Text(path)
+                  .truncationMode(.middle)
+                  .lineLimit(1)
+                  .foregroundStyle(.secondary)
+                Spacer()
+                Button(role: .destructive) {
+                  customOutputPath = nil
+                } label: {
+                  Image(systemName: "trash")
+                    .foregroundStyle(Color.red)
+                }
+              }
+
+              Button("Choose...") {
+                let panel = NSOpenPanel()
+                panel.canChooseDirectories = true
+                panel.canChooseFiles = false
+                panel.allowsMultipleSelection = false
+
+                if panel.runModal() == .OK {
+                  customOutputPath = panel.url?.path
+                }
               }
             }
           }
 
-          if let path = outputPath {
-            HStack {
-              Text(path)
-                .truncationMode(.middle)
-                .lineLimit(1)
-                .foregroundStyle(.secondary)
-              Spacer()
-              Button(role: .destructive) {
-                outputPath = nil
-              } label: {
-                Image(systemName: "trash")
-                  .foregroundStyle(Color.red)
-              }
-            }
-          } else {
-            Text("The image will be saved to the current directory.")
+          switch outputLocation {
+          case .temporary:
+            Text("Files will only be available in the conversion window")
               .foregroundStyle(.secondary)
+          case .sourceDirectory:
+            Text("Files will be saved alongside the original images")
+              .foregroundStyle(.secondary)
+          case .custom:
+            if customOutputPath == nil {
+              Text("Choose a custom output location")
+                .foregroundStyle(.secondary)
+            }
           }
         }
       }

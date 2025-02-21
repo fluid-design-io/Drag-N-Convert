@@ -20,7 +20,7 @@ struct AppState: Codable {
     presets: [ConversionPreset] = [],
     lastUsedPresetId: UUID? = nil,
     defaultOutputPath: String? = nil,
-    autoCloseAfterConversion: Bool = true,
+    autoCloseAfterConversion: Bool = false,
     autoCloseDelay: TimeInterval = 5.0
   ) {
     self.presets = presets

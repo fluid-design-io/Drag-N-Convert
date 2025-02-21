@@ -7,7 +7,8 @@ struct ConversionPreset: Identifiable, Codable, Hashable {
   var maxHeight: Int
   var format: ImageFormat
   var quality: Int
-  var outputPath: String?
+  var outputLocation: OutputLocation = .sourceDirectory
+  var customOutputPath: String?  // Only used when outputLocation is .custom
   var deleteOriginal: Bool
 
   enum ImageFormat: String, Codable, CaseIterable {
@@ -17,13 +18,20 @@ struct ConversionPreset: Identifiable, Codable, Hashable {
     case jpeg
   }
 
+  enum OutputLocation: String, Codable, CaseIterable {
+    case temporary = "Temporary Only"
+    case sourceDirectory = "Same as Source"
+    case custom = "Custom Location"
+  }
+
   init(
     nickname: String = "New Preset",
     maxWidth: Int = 1920,
     maxHeight: Int = 1080,
     format: ImageFormat = .png,
     quality: Int = 85,
-    outputPath: String? = nil,
+    outputLocation: OutputLocation = .sourceDirectory,
+    customOutputPath: String? = nil,
     deleteOriginal: Bool = false
   ) {
     self.nickname = nickname
@@ -31,7 +39,8 @@ struct ConversionPreset: Identifiable, Codable, Hashable {
     self.maxHeight = maxHeight
     self.format = format
     self.quality = quality
-    self.outputPath = outputPath
+    self.outputLocation = outputLocation
+    self.customOutputPath = customOutputPath
     self.deleteOriginal = deleteOriginal
   }
 }

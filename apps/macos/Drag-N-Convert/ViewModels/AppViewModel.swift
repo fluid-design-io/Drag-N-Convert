@@ -111,26 +111,77 @@ class AppViewModel: ObservableObject {
     saveState()
   }
 
+  private func createTempDirectory() -> URL? {
+    let tempDir = FileManager.default.temporaryDirectory
+      .appendingPathComponent("DragNConvert-\(UUID().uuidString)")
+    try? FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+    return tempDir
+  }
+
+  func clearTempFiles() {
+    if let tempDir = currentBatch?.tempDirectory {
+      try? FileManager.default.removeItem(at: tempDir)
+    }
+    currentBatch = nil
+  }
+
   func handleFilesDropped(_ urls: [URL], preset: ConversionPreset) {
     let tasks = urls.map { ConversionTask(sourceURL: $0, preset: preset) }
+    let tempDir = createTempDirectory()
 
-    // Use preset's output path if available, otherwise use source directory
-    let outputDirectory: URL? =
-      if let customPath = preset.outputPath {
-        URL(fileURLWithPath: customPath, isDirectory: true)
-      } else {
-        urls.first?.deletingLastPathComponent()
+    // Determine output directory based on preset settings
+    let outputDirectory: URL? = {
+      switch preset.outputLocation {
+      case .temporary:
+        return nil
+      case .sourceDirectory:
+        return urls.first?.deletingLastPathComponent()
+      case .custom:
+        return preset.customOutputPath.map { URL(fileURLWithPath: $0) }
       }
+    }()
 
     currentBatch = ConversionBatch(
       tasks: tasks,
-      outputDirectory: outputDirectory
+      outputDirectory: outputDirectory,
+      tempDirectory: tempDir
     )
 
     state.lastUsedPresetId = preset.id
     saveState()
 
     startConversion()
+  }
+
+  private func saveImageData(
+    processedImage: VIPSImage, to url: URL, format: ConversionPreset.ImageFormat, quality: Int
+  ) throws {
+    switch format {
+    case .jpeg:
+      let jpegData = try processedImage.exportedJpeg(
+        quality: quality,
+        optimizeCoding: true,
+        interlace: true,
+        strip: true
+      )
+      try Data(jpegData).write(to: url)
+
+    case .png:
+      let pngData = try processedImage.exportedPNG()
+      try Data(pngData).write(to: url)
+
+    case .webp:
+      let webpData = try processedImage.exported(
+        suffix: ".webp"
+      )
+      try Data(webpData).write(to: url)
+
+    case .heif:
+      let heifData = try processedImage.exported(
+        suffix: ".heic"
+      )
+      try Data(heifData).write(to: url)
+    }
   }
 
   func startConversion() {
@@ -184,43 +235,31 @@ class AppViewModel: ObservableObject {
           // Prepare output filename
           let outputFilename = task.sourceURL.deletingPathExtension().lastPathComponent
           let outputExtension = task.preset.format.rawValue
-          let outputURL = batch.outputDirectory?
+
+          // Save to temp directory
+          let tempURL = batch.tempDirectory?
             .appendingPathComponent(outputFilename)
             .appendingPathExtension(outputExtension)
 
-          if let outputURL = outputURL {
-            // Export with format-specific options
-            switch task.preset.format {
-            case .jpeg:
-              let jpegData = try processedImage.exportedJpeg(
-                quality: Int(task.preset.quality),
-                optimizeCoding: true,
-                interlace: true,
-                strip: true
-              )
-              try Data(jpegData).write(to: outputURL)
-            case .png:
-              let pngData = try processedImage.exportedPNG()
-              try Data(pngData).write(to: outputURL)
-            case .webp:
-              let webpData = try processedImage.exported(
-                suffix: ".webp"
-              )
-              try Data(webpData).write(to: outputURL)
-            case .heif:
-              let heifData = try processedImage.exported(
-                suffix: ".heic"
-              )
-              try Data(heifData).write(to: outputURL)
+          if let tempURL = tempURL {
+            // Save to temp directory first
+            try saveImageData(
+              processedImage: processedImage,
+              to: tempURL,
+              format: task.preset.format,
+              quality: task.preset.quality
+            )
+            task.outputURL = tempURL
+
+            // Save to output directory if specified
+            if let outputURL = batch.outputDirectory?
+              .appendingPathComponent(outputFilename)
+              .appendingPathExtension(outputExtension)
+            {
+              try FileManager.default.copyItem(at: tempURL, to: outputURL)
             }
 
             task.status = .completed
-          } else {
-            throw NSError(
-              domain: "AppError",
-              code: -1,
-              userInfo: [NSLocalizedDescriptionKey: "Invalid output path"]
-            )
           }
 
         } catch {

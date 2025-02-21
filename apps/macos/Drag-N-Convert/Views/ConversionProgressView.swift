@@ -10,22 +10,8 @@ struct ConversionProgressView: View {
     VStack(spacing: 16) {
       switch batch.status {
       case .completed:
-        VStack(spacing: 8) {
-          Image(systemName: "checkmark.circle.fill")
-            .font(.system(size: 32))
-            .foregroundStyle(.green)
-            .transition(.symbolEffect(.appear))
-
-          Text("Conversion Complete")
-            .font(.headline)
-
-          if let outputDirectory = batch.outputDirectory {
-            Button("Open Folder") {
-              NSWorkspace.shared.selectFile(nil, inFileViewerRootedAtPath: outputDirectory.path)
-            }
-            .buttonStyle(.borderedProminent)
-          }
-        }
+        CompletedFilesView(batch: batch)
+          .transition(.move(edge: .top).combined(with: .opacity))
 
       case .failed:
         VStack(spacing: 8) {

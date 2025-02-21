@@ -10,6 +10,33 @@ struct PresetDropZoneView: View {
     GridItem(.flexible()),
   ]
 
+  private var gradientColors: [Color] {
+    let baseColor = isHovered ? Color.accentColor : Color.secondary
+    return [
+      baseColor.opacity(0.04),
+      baseColor.opacity(0.12),
+    ]
+  }
+
+  private var borderColor: Color {
+    isHovered ? .accentColor : .secondary.opacity(0.1)
+  }
+
+  private var borderWidth: CGFloat {
+    isHovered ? 2 : 0.5
+  }
+
+  private var locationText: String {
+    switch preset.outputLocation {
+    case .temporary:
+      return "Temp Only"
+    case .sourceDirectory:
+      return "Same as Source"
+    case .custom:
+      return preset.customOutputPath ?? "Custom"
+    }
+  }
+
   var body: some View {
     HStack {
       VStack(alignment: .leading, spacing: 6) {
@@ -19,15 +46,11 @@ struct PresetDropZoneView: View {
 
         LazyVGrid(columns: columns, alignment: .leading, spacing: 6) {
           PresetInfoRow(title: "F", value: "\(preset.format.rawValue.uppercased())")
-          PresetInfoRow(title: "W", value: "\(Int(preset.maxWidth))")
-          PresetInfoRow(title: "H", value: "\(Int(preset.maxHeight))")
-          PresetInfoRow(title: "Q", value: "\(Int(preset.quality))")
+            PresetInfoRow(title: "Q", value: "\(preset.quality)")
+          PresetInfoRow(title: "W", value: "\(preset.maxWidth)")
+          PresetInfoRow(title: "H", value: "\(preset.maxHeight)")
         }
-        if preset.outputPath != nil {
-          PresetInfoRow(title: "L", value: "\(preset.outputPath!)")
-        } else {
-          PresetInfoRow(title: "L", value: "Current Path")
-        }
+        PresetInfoRow(title: "L", value: "\(locationText)")
       }
       Spacer()
     }
@@ -37,28 +60,15 @@ struct PresetDropZoneView: View {
       RoundedRectangle(cornerRadius: 30, style: .continuous)
         .fill(
           LinearGradient(
-            gradient: Gradient(colors: [
-              isHovered
-                ? .accentColor.opacity(0.04)
-                : Color.secondary.opacity(0.04),
-              isHovered
-                ? .accentColor.opacity(0.12)
-                : Color.secondary.opacity(0.12),
-            ]),
+            gradient: Gradient(colors: gradientColors),
             startPoint: .top,
             endPoint: .bottom
           )
         )
-
     }
     .overlay {
-      ZStack {
-        RoundedRectangle(cornerRadius: 30, style: .continuous)
-          .strokeBorder(
-            isHovered ? Color.accentColor : .secondary.opacity(0.1),
-            lineWidth: isHovered ? 2 : 0.5
-          )
-      }
+      RoundedRectangle(cornerRadius: 30, style: .continuous)
+        .strokeBorder(borderColor, lineWidth: borderWidth)
     }
     .animation(.easeInOut(duration: 0.15), value: isHovered)
     .onChange(of: isHovered) { oldValue, newValue in
