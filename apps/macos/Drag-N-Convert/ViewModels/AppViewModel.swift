@@ -6,6 +6,7 @@ class AppViewModel: ObservableObject {
   @Published var state: AppState
   @Published var currentBatch: ConversionBatch?
   @Published var draggedFileURLs: [URL] = []
+  @Published var isCloseAfterConversion: Bool?
 
   private let stateManager: StateManager
   private var mockConversionTask: Task<Void, Never>?
@@ -117,9 +118,15 @@ class AppViewModel: ObservableObject {
     return tempDir
   }
 
+  func dismissFloatingPanel() {
+    print("👋 Dismissing floating panel")
+    isCloseAfterConversion = true
+  }
+
   func clearTempFiles() {
     if let tempDir = currentBatch?.tempDirectory {
       try? FileManager.default.removeItem(at: tempDir)
+      print("🧹 Cleared temp files")
     }
     currentBatch = nil
   }

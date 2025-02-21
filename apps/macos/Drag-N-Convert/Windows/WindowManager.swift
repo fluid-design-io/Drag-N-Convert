@@ -18,6 +18,7 @@ final class WindowManager: ObservableObject {
     self.dragMonitor = DragMonitor()
     setupDragMonitor()
     setupConversionBatchHandler()
+    setupCloseAfterConversionHandler()
   }
 
   private func setupDragMonitor() {
@@ -47,6 +48,16 @@ final class WindowManager: ObservableObject {
               }
             }
           }
+        }
+      }
+      .store(in: &cancellables)
+  }
+
+  private func setupCloseAfterConversionHandler() {
+    viewModel.$isCloseAfterConversion
+      .sink { [weak self] isCloseAfterConversion in
+        if isCloseAfterConversion == true {
+          self?.hideFloatingPanel()
         }
       }
       .store(in: &cancellables)
@@ -82,6 +93,8 @@ final class WindowManager: ObservableObject {
   }
 
   private func showFloatingPanel() {
+    guard !isDropZoneVisible else { return }
+
     print("📱 Showing floating panel")
     isDropZoneVisible = true
     openWindow?("dropzone")
@@ -89,18 +102,19 @@ final class WindowManager: ObservableObject {
   }
 
   private func hideFloatingPanel() {
-    print("🚫 Hiding floating panel")
+    guard isDropZoneVisible else { return }
 
+    print("🚫 Hiding floating panel")
     // First update state and trigger animation
     isDropZoneVisible = false
     viewModel.draggedFileURLs = []
-    viewModel.currentBatch = nil
     print("✅ Panel visibility set to false")
 
     // Wait for animation to complete before dismissing window
     Task { @MainActor in
       try? await Task.sleep(for: .milliseconds(380))  // Match animation duration
       print("🔒 Dismissing window after animation")
+      viewModel.clearTempFiles()
       dismissWindow?("dropzone")
     }
   }

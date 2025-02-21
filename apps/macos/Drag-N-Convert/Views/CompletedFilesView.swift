@@ -13,7 +13,7 @@ struct CompletedFilesView: View {
           .font(.headline)
         Spacer()
         Button {
-          viewModel.clearTempFiles()
+          viewModel.dismissFloatingPanel()
         } label: {
           Image(systemName: "xmark.circle.fill")
             .foregroundStyle(.secondary)
@@ -28,27 +28,14 @@ struct CompletedFilesView: View {
       }
       .listStyle(.plain)
       .scrollContentBackground(.hidden)
+      .onAppear {
+        multiSelection = Set<UUID>(batch.tasks.filter { $0.status == .completed }.map { $0.id })
+      }
 
       HStack {
         Text("Drag files to copy them")
           .font(.caption)
           .foregroundStyle(.secondary)
-        Spacer()
-        if multiSelection.count < batch.tasks.filter({ $0.status == .completed }).count {
-          Button {
-            multiSelection = Set<UUID>(batch.tasks.map { $0.id })
-          } label: {
-            Label("Select All", systemImage: "checkmark.circle")
-          }
-          .buttonStyle(.plain)
-        } else {
-          Button {
-            multiSelection = Set<UUID>()
-          } label: {
-            Label("Deselect All", systemImage: "xmark.circle")
-          }
-          .buttonStyle(.plain)
-        }
       }
       .animation(.snappy, value: multiSelection)
       .padding(.horizontal, 24)
@@ -72,7 +59,6 @@ struct DraggableFileRow: View {
         .resizable()
         .aspectRatio(contentMode: .fit)
         .frame(width: 48, height: 48)
-        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
     .padding(8)
   }
