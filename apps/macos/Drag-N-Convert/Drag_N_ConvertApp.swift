@@ -7,7 +7,6 @@
 
 import SwiftUI
 import UniformTypeIdentifiers
-import VIPS
 
 @main
 struct Drag_N_ConvertApp: App {
@@ -19,22 +18,26 @@ struct Drag_N_ConvertApp: App {
 
   init() {
     print("📱 Initializing DragNConvertApp")
-    // Initialize VIPS
-    do {
-      try VIPS.start()
-      print("✅ VIPS initialized successfully")
-    } catch {
-      print("❌ Failed to initialize VIPS:", error)
-      exit(1)
-    }
 
     let vm = AppViewModel()
     self._viewModel = StateObject(wrappedValue: vm)
-    // Initialize with empty actions first
     self._windowManager = StateObject(
-      wrappedValue: WindowManager(viewModel: vm))
+      wrappedValue: WindowManager(viewModel: vm)
+    )
 
     print("✅ App initialization complete")
+  }
+
+  enum DependencyError: LocalizedError {
+    case nodeNotFound
+
+    var errorDescription: String? {
+      switch self {
+      case .nodeNotFound:
+        return
+          "Node.js and sharp are required. Please install them using:\n\nbrew install node\nnpm install -g sharp"
+      }
+    }
   }
 
   var body: some Scene {

@@ -23,6 +23,10 @@ struct ConversionProgressView: View {
           Text("Conversion Failed")
             .font(.headline)
 
+          Text(batch.error?.localizedDescription ?? "Unknown error")
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
+
           Button("Try Again") {
             viewModel.startConversion()
           }

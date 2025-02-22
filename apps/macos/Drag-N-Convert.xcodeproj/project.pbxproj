@@ -7,10 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		692CAEAE2D644DDA00E4675B /* VIPS in Frameworks */ = {isa = PBXBuildFile; productRef = 692CAEAD2D644DDA00E4675B /* VIPS */; };
+		69E1DAA72D695BB700F180F1 /* image-processor.js in Resources */ = {isa = PBXBuildFile; fileRef = 69E1DAA42D695BB700F180F1 /* image-processor.js */; };
+		69E1DAA82D695BB700F180F1 /* setup-node.sh in Resources */ = {isa = PBXBuildFile; fileRef = 69E1DAA52D695BB700F180F1 /* setup-node.sh */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		69E1DAA42D695BB700F180F1 /* image-processor.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "image-processor.js"; sourceTree = "<group>"; };
+		69E1DAA52D695BB700F180F1 /* setup-node.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "setup-node.sh"; sourceTree = "<group>"; };
 		69F15F172D625EE700D8CFA7 /* Drag-N-Convert.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Drag-N-Convert.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -40,18 +43,27 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				692CAEAE2D644DDA00E4675B /* VIPS in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		69E1DAA62D695BB700F180F1 /* scripts */ = {
+			isa = PBXGroup;
+			children = (
+				69E1DAA42D695BB700F180F1 /* image-processor.js */,
+				69E1DAA52D695BB700F180F1 /* setup-node.sh */,
+			);
+			path = scripts;
+			sourceTree = "<group>";
+		};
 		69F15F0E2D625EE700D8CFA7 = {
 			isa = PBXGroup;
 			children = (
 				69F15F192D625EE700D8CFA7 /* Drag-N-Convert */,
 				69F15F182D625EE700D8CFA7 /* Products */,
+				69E1DAA62D695BB700F180F1 /* scripts */,
 			);
 			sourceTree = "<group>";
 		};
@@ -72,6 +84,7 @@
 			buildPhases = (
 				69F15F132D625EE700D8CFA7 /* Sources */,
 				69F15F142D625EE700D8CFA7 /* Frameworks */,
+				69E1DAA32D69500300F180F1 /* ShellScript */,
 				69F15F152D625EE700D8CFA7 /* Resources */,
 			);
 			buildRules = (
@@ -83,7 +96,6 @@
 			);
 			name = "Drag-N-Convert";
 			packageProductDependencies = (
-				692CAEAD2D644DDA00E4675B /* VIPS */,
 			);
 			productName = "Drag-N-Convert";
 			productReference = 69F15F172D625EE700D8CFA7 /* Drag-N-Convert.app */;
@@ -115,7 +127,6 @@
 			mainGroup = 69F15F0E2D625EE700D8CFA7;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				692CAEAC2D644DDA00E4675B /* XCRemoteSwiftPackageReference "swift-vips" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 69F15F182D625EE700D8CFA7 /* Products */;
@@ -132,10 +143,32 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				69E1DAA72D695BB700F180F1 /* image-processor.js in Resources */,
+				69E1DAA82D695BB700F180F1 /* setup-node.sh in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		69E1DAA32D69500300F180F1 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Make the setup script executable\nchmod +x \"$SRCROOT/scripts/setup-node.sh\"\n\n# Run the setup script with the current configuration\nexport CONFIGURATION=\"$CONFIGURATION\"\n\"$SRCROOT/scripts/setup-node.sh\" \"$BUILT_PRODUCTS_DIR/$CONTENTS_FOLDER_PATH/..\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		69F15F132D625EE700D8CFA7 /* Sources */ = {
@@ -184,10 +217,11 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_APP_SANDBOX = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				"EXCLUDED_ARCHS[sdk=*]" = x86_64;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				ENABLE_USER_SELECTED_FILES = readwrite;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -250,10 +284,11 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_APP_SANDBOX = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				"EXCLUDED_ARCHS[sdk=*]" = x86_64;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				ENABLE_USER_SELECTED_FILES = readwrite;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -281,7 +316,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"Drag-N-Convert/Preview Content\"";
 				DEVELOPMENT_TEAM = A325VDWL7N;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -296,7 +331,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 1.1;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.cardware.Drag-N-Convert";
+				PRODUCT_BUNDLE_IDENTIFIER = "app.oliverpan.Drag-N-Convert";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -312,7 +347,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"Drag-N-Convert/Preview Content\"";
 				DEVELOPMENT_TEAM = A325VDWL7N;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -327,7 +362,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 1.1;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.cardware.Drag-N-Convert";
+				PRODUCT_BUNDLE_IDENTIFIER = "app.oliverpan.Drag-N-Convert";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -356,25 +391,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		692CAEAC2D644DDA00E4675B /* XCRemoteSwiftPackageReference "swift-vips" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/t089/swift-vips";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.0.1;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		692CAEAD2D644DDA00E4675B /* VIPS */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 692CAEAC2D644DDA00E4675B /* XCRemoteSwiftPackageReference "swift-vips" */;
-			productName = VIPS;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 69F15F0F2D625EE700D8CFA7 /* Project object */;
 }

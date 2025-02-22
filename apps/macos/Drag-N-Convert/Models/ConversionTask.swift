@@ -24,7 +24,7 @@ struct ConversionBatch: Identifiable {
   var endTime: Date?
   var outputDirectory: URL?
   var tempDirectory: URL?
-
+  var error: Error?
   var progress: Double {
     guard !tasks.isEmpty else { return 0 }
     return tasks.reduce(0) { $0 + $1.progress } / Double(tasks.count)

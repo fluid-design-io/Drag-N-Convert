@@ -21,10 +21,13 @@ struct AboutView: View {
           .foregroundStyle(.secondary)
 
         VStack(alignment: .leading, spacing: 8) {
-          Text("A simple and efficient image converter for macOS.")
-            .font(.body)
-            .multilineTextAlignment(.center)
-            .foregroundStyle(.secondary)
+          HStack {
+            Text("A simple and efficient image converter for macOS.")
+              .font(.body)
+              .multilineTextAlignment(.center)
+              .foregroundStyle(.secondary)
+            Spacer()
+          }
 
           Link(
             "GitHub Repository",
@@ -59,8 +62,8 @@ struct AboutView: View {
                 .padding(.top, 8)
 
               Link(
-                "SwiftVips",
-                destination: URL(string: "https://github.com/gh123man/SwiftVips")!
+                "Sharp",
+                destination: URL(string: "https://github.com/lovell/sharp")!
               )
               .font(.caption)
               .buttonStyle(.link)
@@ -75,7 +78,7 @@ struct AboutView: View {
     .padding(.horizontal, 36)
     .padding(.top, 16)
     .padding(.bottom, 36)
-    .frame(width: 540)
+    .frame(width: 540, height: 300)
   }
 }
 

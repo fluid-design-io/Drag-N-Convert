@@ -1,1 +1,4 @@
 .DS_Store
+*.dylib
+Contents/Frameworks/
+Contents/Resources/node/

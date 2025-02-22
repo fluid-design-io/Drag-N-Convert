@@ -1,3 +1,4 @@
+import CoreImage
 import Foundation
 
 struct ConversionPreset: Identifiable, Codable, Hashable {
@@ -12,10 +13,22 @@ struct ConversionPreset: Identifiable, Codable, Hashable {
   var deleteOriginal: Bool
 
   enum ImageFormat: String, Codable, CaseIterable {
-    case heif
+    case avif
     case png
-    case webp
     case jpeg
+    case webp
+    case tiff
+
+    var fileExtension: String {
+      rawValue
+    }
+
+    var compressionQualityEnabled: Bool {
+      switch self {
+      case .png, .tiff: return false
+      case .avif, .jpeg, .webp: return true
+      }
+    }
   }
 
   enum OutputLocation: LocalizedStringResource, Codable, CaseIterable {
@@ -28,7 +41,7 @@ struct ConversionPreset: Identifiable, Codable, Hashable {
     nickname: String = "New Preset",
     maxWidth: Int = 1920,
     maxHeight: Int = 1080,
-    format: ImageFormat = .png,
+    format: ImageFormat = .jpeg,
     quality: Int = 85,
     outputLocation: OutputLocation = .sourceDirectory,
     customOutputPath: String? = nil,

@@ -19,4 +19,4 @@ Available in:
 
 ## Credit
 
-- [SwiftVips](https://github.com/gh123man/SwiftVips) by [gh123man](https://github.com/gh123man)
+- [Sharp](https://github.com/lovell/sharp) by [lovell](https://github.com/lovell)

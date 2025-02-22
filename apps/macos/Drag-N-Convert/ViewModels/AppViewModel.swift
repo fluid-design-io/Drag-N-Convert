@@ -1,5 +1,7 @@
+import CoreImage
+import ImageIO
 import SwiftUI
-import VIPS
+import UniformTypeIdentifiers
 
 @MainActor
 class AppViewModel: ObservableObject {
@@ -9,7 +11,8 @@ class AppViewModel: ObservableObject {
   @Published var isCloseAfterConversion: Bool?
 
   private let stateManager: StateManager
-  private var mockConversionTask: Task<Void, Never>?
+  private var conversionTask: Task<Void, Never>?
+  private let imageProcessor = ImageProcessor()
 
   private static let defaultPresets = [
     ConversionPreset(
@@ -20,7 +23,7 @@ class AppViewModel: ObservableObject {
       quality: 90
     ),
     ConversionPreset(
-      nickname: "HD WEBP",
+      nickname: "HD WebP",
       maxWidth: 1920,
       maxHeight: 1080,
       format: .webp,
@@ -34,10 +37,10 @@ class AppViewModel: ObservableObject {
       quality: 80
     ),
     ConversionPreset(
-      nickname: "Mobile HEIC",
+      nickname: "Mobile AVIF",
       maxWidth: 1280,
       maxHeight: 720,
-      format: .heif,
+      format: .avif,
       quality: 80
     ),
   ]
@@ -48,7 +51,6 @@ class AppViewModel: ObservableObject {
 
     if state.presets.isEmpty {
       state.presets = Self.defaultPresets
-      saveState()
     }
   }
 
@@ -86,29 +88,24 @@ class AppViewModel: ObservableObject {
 
   func addPreset(_ preset: ConversionPreset) {
     state.presets.append(preset)
-    saveState()
   }
 
   func updatePreset(_ preset: ConversionPreset) {
     if let index = state.presets.firstIndex(where: { $0.id == preset.id }) {
       state.presets[index] = preset
-      saveState()
     }
   }
 
   func deletePreset(_ preset: ConversionPreset) {
     state.presets.removeAll { $0.id == preset.id }
-    saveState()
   }
 
   func deletePresetAtIndexSet(_ indexSet: IndexSet) {
     state.presets.remove(atOffsets: indexSet)
-    saveState()
   }
 
   func movePresets(from source: IndexSet, to destination: Int) {
     state.presets.move(fromOffsets: source, toOffset: destination)
-    saveState()
   }
 
   private func createTempDirectory() -> URL? {
@@ -154,49 +151,17 @@ class AppViewModel: ObservableObject {
     )
 
     state.lastUsedPresetId = preset.id
-    saveState()
 
     startConversion()
-  }
-
-  private func saveImageData(
-    processedImage: VIPSImage, to url: URL, format: ConversionPreset.ImageFormat, quality: Int
-  ) throws {
-    switch format {
-    case .jpeg:
-      let jpegData = try processedImage.exportedJpeg(
-        quality: quality,
-        optimizeCoding: true,
-        interlace: true,
-        strip: true
-      )
-      try Data(jpegData).write(to: url)
-
-    case .png:
-      let pngData = try processedImage.exportedPNG()
-      try Data(pngData).write(to: url)
-
-    case .webp:
-      let webpData = try processedImage.exported(
-        suffix: ".webp"
-      )
-      try Data(webpData).write(to: url)
-
-    case .heif:
-      let heifData = try processedImage.exported(
-        suffix: ".heic"
-      )
-      try Data(heifData).write(to: url)
-    }
   }
 
   func startConversion() {
     guard let batch = currentBatch else { return }
 
     // Cancel any existing conversion
-    mockConversionTask?.cancel()
+    conversionTask?.cancel()
 
-    mockConversionTask = Task {
+    conversionTask = Task {
       var updatedBatch = batch
       updatedBatch.startTime = Date()
 
@@ -215,59 +180,18 @@ class AppViewModel: ObservableObject {
         currentBatch = updatedBatch
 
         do {
-          // Load the image with sequential access for better performance
-          let image = try VIPSImage(fromFilePath: task.sourceURL.path)
-
-          // Calculate new dimensions while maintaining aspect ratio
-          let newDimensions = calculateNewDimensions(
-            currentWidth: image.size.width,
-            currentHeight: image.size.height,
-            maxWidth: task.preset.maxWidth,
-            maxHeight: task.preset.maxHeight
+          let outputURL = try await imageProcessor.processImage(
+            at: task.sourceURL,
+            preset: task.preset,
+            outputDirectory: batch.outputDirectory ?? batch.tempDirectory
           )
 
-          // Resize image without cropping
-          let processedImage = try image.thumbnailImage(
-            width: newDimensions.width,
-            height: newDimensions.height,
-            crop: .none  // Changed from .attention to .none
-          )
+          task.outputURL = outputURL
+          task.status = .completed
 
-          // Update progress
-          task.progress = 0.5
-          updatedBatch.tasks[taskIndex] = task
-          currentBatch = updatedBatch
-
-          // Prepare output filename
-          let outputFilename = task.sourceURL.deletingPathExtension().lastPathComponent
-          let outputExtension = task.preset.format.rawValue
-
-          // Save to temp directory
-          let tempURL = batch.tempDirectory?
-            .appendingPathComponent(outputFilename)
-            .appendingPathExtension(outputExtension)
-
-          if let tempURL = tempURL {
-            // Save to temp directory first
-            try saveImageData(
-              processedImage: processedImage,
-              to: tempURL,
-              format: task.preset.format,
-              quality: task.preset.quality
-            )
-            task.outputURL = tempURL
-
-            // Save to output directory if specified
-            if let outputURL = batch.outputDirectory?
-              .appendingPathComponent(outputFilename)
-              .appendingPathExtension(outputExtension)
-            {
-              try FileManager.default.copyItem(at: tempURL, to: outputURL)
-            }
-
-            task.status = .completed
+          if task.preset.deleteOriginal {
+            try? FileManager.default.removeItem(at: task.sourceURL)
           }
-
         } catch {
           task.status = .failed
           task.error = error
@@ -282,22 +206,191 @@ class AppViewModel: ObservableObject {
       currentBatch = updatedBatch
     }
   }
+}
 
-  private func calculateNewDimensions(
-    currentWidth: Int, currentHeight: Int, maxWidth: Int, maxHeight: Int
-  ) -> (width: Int, height: Int) {
-    let widthRatio = Double(maxWidth) / Double(currentWidth)
-    let heightRatio = Double(maxHeight) / Double(currentHeight)
-    let scale = min(widthRatio, heightRatio, 1.0)
+// MARK: - Image Processor
+class ImageProcessor {
+  private let nodeScriptPath: String
+  private let nodeBinaryPath: String
+  private let nodeModulesPath: String
+  private let fileManager = FileManager.default
 
-    return (
-      width: Int(Double(currentWidth) * scale),
-      height: Int(Double(currentHeight) * scale)
-    )
+  init() {
+    if let bundleResourcePath = Bundle.main.resourcePath {
+      self.nodeScriptPath = (bundleResourcePath as NSString)
+        .appendingPathComponent("image-processor.js")
+      let nodePath = (bundleResourcePath as NSString)
+        .appendingPathComponent("node")
+      self.nodeBinaryPath = (nodePath as NSString)
+        .appendingPathComponent("bin/node")
+      self.nodeModulesPath = (nodePath as NSString)
+        .appendingPathComponent("node_modules")
+    } else {
+      // Development fallbacks
+      self.nodeScriptPath = "scripts/image-processor.js"
+      self.nodeBinaryPath = "/usr/local/bin/node"
+      self.nodeModulesPath = "/usr/local/lib/node_modules"
+    }
+
+    #if DEBUG
+      print("🔧 Node paths:")
+      print("Script: \(nodeScriptPath)")
+      print("Binary: \(nodeBinaryPath)")
+      print("Modules: \(nodeModulesPath)")
+    #endif
   }
 
-  private func saveState() {
-    stateManager.saveState(state)
+  func processImage(at url: URL, preset: ConversionPreset, outputDirectory: URL?) async throws
+    -> URL
+  {
+    print("🔄 Starting image processing...")
+    print("📄 Input file: \(url.path)")
+    print(
+      "📋 Preset: \(preset.nickname) (\(preset.format.rawValue), \(preset.maxWidth)x\(preset.maxHeight), quality: \(preset.quality))"
+    )
+
+    // Create a temporary directory within the app's sandbox
+    let tempDir = try fileManager.url(
+      for: .itemReplacementDirectory,
+      in: .userDomainMask,
+      appropriateFor: url,
+      create: true
+    )
+    print("📁 Created temp directory: \(tempDir.path)")
+
+    // Create temporary input/output paths
+    let tempInput = tempDir.appendingPathComponent("input-\(UUID().uuidString)")
+      .appendingPathExtension(url.pathExtension)
+    let tempOutput = tempDir.appendingPathComponent("output-\(UUID().uuidString)")
+      .appendingPathExtension(preset.format.fileExtension)
+    print("📥 Temp input path: \(tempInput.path)")
+    print("📤 Temp output path: \(tempOutput.path)")
+
+    // Copy input file to temp directory
+    do {
+      try fileManager.copyItem(at: url, to: tempInput)
+      print("✅ Copied input file to temp directory")
+    } catch {
+      print("❌ Failed to copy input file: \(error)")
+      throw error
+    }
+
+    // Prepare options for the Node script
+    let options: [String: Any] = [
+      "maxWidth": preset.maxWidth,
+      "maxHeight": preset.maxHeight,
+      "format": preset.format.rawValue,
+      "quality": preset.quality,
+    ]
+    print("⚙️ Node script options: \(options)")
+
+    let optionsJSON = try JSONSerialization.data(withJSONObject: options)
+    let optionsString = String(data: optionsJSON, encoding: .utf8)!
+
+    // Create and configure the Node process
+    let process = Process()
+    process.executableURL = URL(fileURLWithPath: nodeBinaryPath)
+    print("🔧 Node binary path: \(nodeBinaryPath)")
+    print("📜 Node script path: \(nodeScriptPath)")
+
+    // Set up environment variables
+    var env = ProcessInfo.processInfo.environment
+    env["NODE_PATH"] = nodeModulesPath
+    process.environment = env
+    print("🌍 NODE_PATH set to: \(nodeModulesPath)")
+
+    process.arguments = [
+      nodeScriptPath,
+      tempInput.path,
+      tempOutput.path,
+      optionsString,
+    ]
+    print("🎯 Process arguments: \(process.arguments ?? [])")
+
+    // Set up pipes for output
+    let outputPipe = Pipe()
+    let errorPipe = Pipe()
+    process.standardOutput = outputPipe
+    process.standardError = errorPipe
+
+    do {
+      print("▶️ Starting Node process...")
+      try process.run()
+      process.waitUntilExit()
+
+      let status = process.terminationStatus
+      print("⏹️ Process terminated with status: \(status)")
+
+      if status != 0 {
+        let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+        let outputData = outputPipe.fileHandleForReading.readDataToEndOfFile()
+
+        print("📤 Process output: \(String(data: outputData, encoding: .utf8) ?? "none")")
+        print("❌ Process error: \(String(data: errorData, encoding: .utf8) ?? "none")")
+
+        if let errorString = String(data: errorData, encoding: .utf8) {
+          throw ImageProcessingError.nodejsError(errorString)
+        } else {
+          throw ImageProcessingError.nodejsError("Unknown error")
+        }
+      }
+
+      // Create final output URL
+      let finalOutput = (outputDirectory ?? url.deletingLastPathComponent())
+        .appendingPathComponent(url.deletingPathExtension().lastPathComponent)
+        .appendingPathExtension(preset.format.fileExtension)
+      print("📝 Final output path: \(finalOutput.path)")
+
+      // Check if output file exists
+      print("🔍 Checking if output file exists at: \(tempOutput.path)")
+      if fileManager.fileExists(atPath: tempOutput.path) {
+        print("✅ Output file exists")
+      } else {
+        print("❌ Output file not found!")
+        throw ImageProcessingError.failedToSaveImage
+      }
+
+      // Move the processed file to final location
+      if fileManager.fileExists(atPath: finalOutput.path) {
+        print("🗑️ Removing existing file at destination")
+        try fileManager.removeItem(at: finalOutput)
+      }
+
+      do {
+        try fileManager.moveItem(at: tempOutput, to: finalOutput)
+        print("✅ Successfully moved output file to final location")
+      } catch {
+        print("❌ Failed to move output file: \(error)")
+        throw error
+      }
+
+      // Clean up temp directory
+      try? fileManager.removeItem(at: tempDir)
+      print("🧹 Cleaned up temporary directory")
+
+      print("✅ Image processing completed successfully")
+      return finalOutput
+    } catch {
+      print("❌ Process failed with error: \(error)")
+      // Clean up temp directory on error
+      try? fileManager.removeItem(at: tempDir)
+      print("🧹 Cleaned up temporary directory after error")
+      throw ImageProcessingError.nodejsError(error.localizedDescription)
+    }
+  }
+}
+
+enum ImageProcessingError: LocalizedError {
+  case failedToSaveImage
+  case nodejsError(String)
+
+  var errorDescription: String? {
+    switch self {
+    case .failedToSaveImage:
+      return "Failed to save the image"
+    case .nodejsError(let message):
+      return "Node.js error: \(message)"
+    }
   }
 }
 
@@ -305,7 +398,7 @@ class AppViewModel: ObservableObject {
 extension AppViewModel {
   func validateDrop(urls: [URL]) -> Bool {
     // Accept only image files
-    let validExtensions = ["jpg", "jpeg", "png", "heic", "webp"]
+    let validExtensions = ["jpg", "jpeg", "png", "avif", "webp", "tiff"]
     return urls.allSatisfy { url in
       validExtensions.contains(url.pathExtension.lowercased())
     }
