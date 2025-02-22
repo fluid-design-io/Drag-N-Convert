@@ -425,6 +425,7 @@
       }
     },
     "Save Changes" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {

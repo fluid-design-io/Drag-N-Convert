@@ -182,7 +182,9 @@ struct PresetFormView: View {
     return isValid && isModified
   }
 
-  private func savePreset() {
+  private func updatePreset() {
+    guard isValid else { return }
+
     var preset = ConversionPreset(
       nickname: nickname,
       maxWidth: Int(width) ?? 1920,
@@ -198,7 +200,8 @@ struct PresetFormView: View {
   }
 
   init(
-    preset: ConversionPreset, onSave: @escaping (ConversionPreset) -> Void,
+    preset: ConversionPreset,
+    onSave: @escaping (ConversionPreset) -> Void,
     onDelete: @escaping () -> Void
   ) {
     self._nickname = State(initialValue: preset.nickname)
@@ -219,12 +222,14 @@ struct PresetFormView: View {
       Section {
         TextField("Nickname", text: $nickname)
           .textFieldStyle(.roundedBorder)
+          .onChange(of: nickname) { _ in updatePreset() }
 
         Picker("Format", selection: $format) {
           ForEach(ConversionPreset.ImageFormat.allCases, id: \.self) { format in
             Text(format.rawValue.uppercased()).tag(format)
           }
         }
+        .onChange(of: format) { _ in updatePreset() }
       }
 
       Section {
@@ -232,9 +237,11 @@ struct PresetFormView: View {
           HStack {
             TextField("Width", text: $width)
               .textFieldStyle(.roundedBorder)
+              .onChange(of: width) { _ in updatePreset() }
             Text("×")
             TextField("Height", text: $height)
               .textFieldStyle(.roundedBorder)
+              .onChange(of: height) { _ in updatePreset() }
           }
           Text("The image's maximum width and height.")
             .foregroundStyle(.secondary)
@@ -245,6 +252,7 @@ struct PresetFormView: View {
         HStack {
           Text("Quality: \(Int(quality))%")
           Slider(value: $quality, in: 0...100)
+            .onChange(of: quality) { _ in updatePreset() }
         }
       }
 
@@ -255,6 +263,7 @@ struct PresetFormView: View {
               Text(location.rawValue).tag(location)
             }
           }
+          .onChange(of: outputLocation) { _ in updatePreset() }
 
           if outputLocation == .custom {
             HStack {
@@ -303,6 +312,7 @@ struct PresetFormView: View {
 
       Section {
         Toggle("Delete original after conversion", isOn: $deleteOriginal)
+          .onChange(of: deleteOriginal) { _ in updatePreset() }
       }
     }
     .formStyle(.grouped)
@@ -313,25 +323,10 @@ struct PresetFormView: View {
         } label: {
           Label("Delete Preset", systemImage: "trash")
         }
-
-        RoundedRectangle(cornerRadius: 2)
-          .fill(Color.secondary.opacity(0.1))
-          .frame(width: 1, height: 16)
-          .padding(.horizontal, 8)
-        Button("Save Changes") {
-          savePreset()
-        }
-        .disabled(!canSave)
       }
     }
     .frame(minWidth: 400)
     .navigationTitle("\(nickname)")
-    .onSubmit {
-      if !canSave {
-        return
-      }
-      savePreset()
-    }
   }
 }
 

@@ -20,28 +20,32 @@ class AppViewModel: ObservableObject {
       maxWidth: 3840,
       maxHeight: 2160,
       format: .png,
-      quality: 90
+      quality: 90,
+      outputLocation: .temporary
     ),
     ConversionPreset(
       nickname: "HD WebP",
       maxWidth: 1920,
       maxHeight: 1080,
       format: .webp,
-      quality: 85
+      quality: 85,
+      outputLocation: .temporary
     ),
     ConversionPreset(
       nickname: "Mobile JPEG",
       maxWidth: 1280,
       maxHeight: 720,
       format: .jpeg,
-      quality: 80
+      quality: 80,
+      outputLocation: .temporary
     ),
     ConversionPreset(
       nickname: "Mobile AVIF",
       maxWidth: 1280,
       maxHeight: 720,
       format: .avif,
-      quality: 80
+      quality: 80,
+      outputLocation: .temporary
     ),
   ]
 

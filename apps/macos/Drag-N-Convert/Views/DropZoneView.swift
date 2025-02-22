@@ -21,10 +21,10 @@ struct DropZoneView: View {
       }
     }
     .padding(6)
-    .frame(width:420)
+    .frame(width: 420)
     .background(.regularMaterial)
     .clipShape(.rect(cornerRadius: 36, style: .continuous))
-    .padding(.trailing, 16) // Floating padding
+    .padding(.trailing, 16)  // Floating padding
   }
 }
 

@@ -15,9 +15,11 @@ struct DropZoneWindow: Scene {
       DropZoneView()
         .environmentObject(viewModel)
         .windowVisibility(windowManager.isDropZoneVisible)
+        .frame(
+                            minWidth: 436, maxWidth: 436,
+                            minHeight: 250, maxHeight: 660)
     }
     .defaultPosition(.trailing)
-    .defaultSize(width: 436, height: 200)
       // MARK: Need this for initial drag to work
       .defaultLaunchBehavior(.presented)
     .windowStyle(.plain)

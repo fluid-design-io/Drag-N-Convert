@@ -56,10 +56,16 @@ struct DraggableFileRow: View {
   var preview: some View {
     HStack {
       HStack {
-        Image(nsImage: NSImage(contentsOf: imageUrl)!)
-          .resizable()
-          .aspectRatio(contentMode: .fit)
-          .frame(width: 48, height: 48)
+        if let image = NSImage(contentsOf: imageUrl) {
+          Image(nsImage: image)
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(width: 48, height: 48)
+        } else {
+          Image(systemName: "exclamationmark.triangle.fill")
+            .foregroundStyle(.secondary)
+            .frame(width: 48, height: 48)
+        }
       }
       .padding(.horizontal, 8)
       Text(task.outputURL?.lastPathComponent ?? "")

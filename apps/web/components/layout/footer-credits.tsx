@@ -11,24 +11,24 @@ import Link from "next/link";
 const oss = [
   {
     description:
-      "A lightning fast image processing and resizing library for Swift",
-    name: "SwiftVips",
-    href: "https://github.com/gh123man/SwiftVips",
+      "A lightning fast image processing and resizing library for Node.js",
+    name: "Sharp",
+    href: "https://github.com/lovell/sharp",
   },
 ];
 
 function FooterCredits() {
   return (
     <ServerModal
-      description="the following libraries and tools were used to build this app."
-      label="Credits"
-      title="Thanks to..."
+      description='the following libraries and tools were used to build this app.'
+      label='Credits'
+      title='Thanks to...'
     >
-      <DescriptionList className="px-6">
+      <DescriptionList className='px-6'>
         {oss.map((item) => (
           <Fragment key={item.name}>
             <DescriptionTerm>
-              <Link href={item.href} target="_blank">
+              <Link href={item.href} target='_blank'>
                 {item.name}
               </Link>
             </DescriptionTerm>

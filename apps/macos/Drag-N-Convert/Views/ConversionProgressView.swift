@@ -14,23 +14,35 @@ struct ConversionProgressView: View {
           .transition(.move(edge: .top).combined(with: .opacity))
 
       case .failed:
-        VStack(spacing: 8) {
-          Image(systemName: "xmark.circle.fill")
-            .font(.system(size: 32))
-            .foregroundStyle(.red)
-            .transition(.symbolEffect(.appear))
+        ZStack {
+          VStack(spacing: 8) {
+            Image(systemName: "xmark.circle.fill")
+              .font(.system(size: 32))
+              .foregroundStyle(.red)
+              .transition(.symbolEffect(.appear))
 
-          Text("Conversion Failed")
-            .font(.headline)
+            Text("Conversion Failed")
+              .font(.headline)
 
-          Text(batch.error?.localizedDescription ?? "Unknown error")
-            .font(.subheadline)
-            .foregroundStyle(.secondary)
+            Text(batch.error?.localizedDescription ?? "Unknown error")
+              .font(.subheadline)
+              .foregroundStyle(.secondary)
 
-          Button("Try Again") {
-            viewModel.startConversion()
+            Button("Try Again") {
+              viewModel.startConversion()
+            }
+            .buttonStyle(.borderedProminent)
           }
-          .buttonStyle(.borderedProminent)
+          HStack {
+            Spacer()
+            Button {
+              viewModel.dismissFloatingPanel()
+            } label: {
+              Image(systemName: "xmark.circle.fill")
+                .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.plain)
+          }
         }
 
       case .converting:
@@ -45,6 +57,7 @@ struct ConversionProgressView: View {
             .font(.subheadline)
             .foregroundStyle(.secondary)
         }
+        .padding()
 
       case .pending:
         ProgressView()
