@@ -44,9 +44,9 @@ const HeroSection: FC = () => {
                   </a>
                 </div>
                 <h1 className='mt-10 text-5xl font-semibold tracking-tight text-balance sm:text-7xl'>
-                  Drag <br />
-                  Convert <br />
-                  Done
+                  Drag. <br />
+                  Convert. <br />
+                  Done.
                 </h1>
                 <p className='mt-6 text-lg/8 text-muted-foreground'>
                   Drag and drop images to <br /> 🔄 Convert, 📐 Resize and 📸
