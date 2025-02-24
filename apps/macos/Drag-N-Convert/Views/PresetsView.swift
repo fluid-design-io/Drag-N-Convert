@@ -222,14 +222,14 @@ struct PresetFormView: View {
       Section {
         TextField("Nickname", text: $nickname)
           .textFieldStyle(.roundedBorder)
-          .onChange(of: nickname) { _ in updatePreset() }
+          .onChange(of: nickname) { oldValue, newValue in updatePreset() }
 
         Picker("Format", selection: $format) {
           ForEach(ConversionPreset.ImageFormat.allCases, id: \.self) { format in
             Text(format.rawValue.uppercased()).tag(format)
           }
         }
-        .onChange(of: format) { _ in updatePreset() }
+        .onChange(of: format) { oldValue, newValue in updatePreset() }
       }
 
       Section {
@@ -237,11 +237,11 @@ struct PresetFormView: View {
           HStack {
             TextField("Width", text: $width)
               .textFieldStyle(.roundedBorder)
-              .onChange(of: width) { _ in updatePreset() }
+              .onChange(of: width) { oldValue, newValue in updatePreset() }
             Text("×")
             TextField("Height", text: $height)
               .textFieldStyle(.roundedBorder)
-              .onChange(of: height) { _ in updatePreset() }
+              .onChange(of: height) { oldValue, newValue in updatePreset() }
           }
           Text("The image's maximum width and height.")
             .foregroundStyle(.secondary)
@@ -252,7 +252,7 @@ struct PresetFormView: View {
         HStack {
           Text("Quality: \(Int(quality))%")
           Slider(value: $quality, in: 0...100)
-            .onChange(of: quality) { _ in updatePreset() }
+            .onChange(of: quality) { oldValue, newValue in updatePreset() }
         }
       }
 
@@ -263,7 +263,7 @@ struct PresetFormView: View {
               Text(location.rawValue).tag(location)
             }
           }
-          .onChange(of: outputLocation) { _ in updatePreset() }
+          .onChange(of: outputLocation) { oldValue, newValue in updatePreset() }
 
           if outputLocation == .custom {
             HStack {
@@ -312,7 +312,7 @@ struct PresetFormView: View {
 
       Section {
         Toggle("Delete original after conversion", isOn: $deleteOriginal)
-          .onChange(of: deleteOriginal) { _ in updatePreset() }
+          .onChange(of: deleteOriginal) { oldValue, newValue in updatePreset() }
       }
     }
     .formStyle(.grouped)

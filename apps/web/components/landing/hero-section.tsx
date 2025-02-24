@@ -35,7 +35,7 @@ const HeroSection: FC = () => {
                       {"What's new"}
                     </span>
                     <span className='inline-flex items-center space-x-2 text-sm/6 font-medium text-muted-foreground'>
-                      <span>Just shipped v1.0.0</span>
+                      <span>Concurrency v1.2.0</span>
                       <ChevronRightIcon
                         className='size-5 text-gray-400'
                         aria-hidden='true'

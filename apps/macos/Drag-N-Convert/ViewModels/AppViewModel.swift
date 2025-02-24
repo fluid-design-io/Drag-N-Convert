@@ -174,36 +174,67 @@ class AppViewModel: ObservableObject {
         try? FileManager.default.createDirectory(at: outputDir, withIntermediateDirectories: true)
       }
 
-      // Process each task
-      for taskIndex in 0..<updatedBatch.tasks.count {
-        guard !Task.isCancelled else { return }
+      // Process tasks concurrently
+      await withTaskGroup(of: (Int, Result<URL, Error>).self) { group in
+        for (index, task) in updatedBatch.tasks.enumerated() {
+          group.addTask {
+            var currentTask = task
+            currentTask.status = .converting
+            let capturedTask = currentTask  // Create an immutable copy
 
-        var task = updatedBatch.tasks[taskIndex]
-        task.status = .converting
-        updatedBatch.tasks[taskIndex] = task
-        currentBatch = updatedBatch
+            // Update UI for task start
+            await MainActor.run {
+              updatedBatch.tasks[index] = capturedTask
+              self.currentBatch = updatedBatch
+            }
 
-        do {
-          let outputURL = try await imageProcessor.processImage(
-            at: task.sourceURL,
-            preset: task.preset,
-            outputDirectory: batch.outputDirectory ?? batch.tempDirectory
-          )
-
-          task.outputURL = outputURL
-          task.status = .completed
-
-          if task.preset.deleteOriginal {
-            try? FileManager.default.removeItem(at: task.sourceURL)
+            do {
+              let outputURL = try await self.imageProcessor.processImage(
+                at: task.sourceURL,
+                preset: task.preset,
+                outputDirectory: batch.outputDirectory ?? batch.tempDirectory
+              )
+              return (index, .success(outputURL))
+            } catch {
+              return (index, .failure(error))
+            }
           }
-        } catch {
-          task.status = .failed
-          task.error = error
         }
 
-        task.progress = 1.0
-        updatedBatch.tasks[taskIndex] = task
-        currentBatch = updatedBatch
+        // Handle results as they complete
+        for await (index, result) in group {
+          var task = updatedBatch.tasks[index]
+
+          switch result {
+          case .success(let outputURL):
+            task.outputURL = outputURL
+            task.status = .completed
+
+            // Calculate file sizes in Swift
+            task.inputSize = ConversionTask.getFileSize(for: task.sourceURL)
+            task.outputSize = ConversionTask.getFileSize(for: outputURL)
+            task.compressionRatio = task.reductionPercentage
+
+            print("🔄 Updated main batch task with file sizes:")
+            print("  Input size: \(task.inputSize.formattedFileSize)")
+            print("  Output size: \(task.outputSize.formattedFileSize)")
+            print("  Reduction: \(task.reductionPercentage)%")
+
+            if task.preset.deleteOriginal {
+              try? FileManager.default.removeItem(at: task.sourceURL)
+            }
+
+          case .failure(let error):
+            task.status = .failed
+            task.error = error
+          }
+
+          task.progress = 1.0
+          updatedBatch.tasks[index] = task
+          await MainActor.run {
+            self.currentBatch = updatedBatch
+          }
+        }
       }
 
       updatedBatch.endTime = Date()
@@ -244,72 +275,55 @@ class ImageProcessor {
     #endif
   }
 
-  func processImage(at url: URL, preset: ConversionPreset, outputDirectory: URL?) async throws
-    -> URL
-  {
-    print("🔄 Starting image processing...")
-    print("📄 Input file: \(url.path)")
-    print(
-      "📋 Preset: \(preset.nickname) (\(preset.format.rawValue), \(preset.maxWidth)x\(preset.maxHeight), quality: \(preset.quality))"
-    )
-
-    // Create a temporary directory within the app's sandbox
-    let tempDir = try fileManager.url(
+  func processBatch(_ tasks: [ConversionTask], outputDirectory: URL?) async throws -> [URL] {
+    // Create a temporary batch directory
+    let batchDir = try fileManager.url(
       for: .itemReplacementDirectory,
       in: .userDomainMask,
-      appropriateFor: url,
+      appropriateFor: tasks.first?.sourceURL,
       create: true
     )
-    print("📁 Created temp directory: \(tempDir.path)")
+    defer { try? fileManager.removeItem(at: batchDir) }
 
-    // Create temporary input/output paths
-    let tempInput = tempDir.appendingPathComponent("input-\(UUID().uuidString)")
-      .appendingPathExtension(url.pathExtension)
-    let tempOutput = tempDir.appendingPathComponent("output-\(UUID().uuidString)")
-      .appendingPathExtension(preset.format.fileExtension)
-    print("📥 Temp input path: \(tempInput.path)")
-    print("📤 Temp output path: \(tempOutput.path)")
+    print("📁 Created batch directory: \(batchDir.path)")
 
-    // Copy input file to temp directory
-    do {
-      try fileManager.copyItem(at: url, to: tempInput)
-      print("✅ Copied input file to temp directory")
-    } catch {
-      print("❌ Failed to copy input file: \(error)")
-      throw error
+    // Create batch configuration
+    let batchTasks = try tasks.map { task -> [String: Any] in
+      let tempInput = batchDir.appendingPathComponent("input-\(UUID().uuidString)")
+        .appendingPathExtension(task.sourceURL.pathExtension)
+      let tempOutput = batchDir.appendingPathComponent("output-\(UUID().uuidString)")
+        .appendingPathExtension(task.preset.format.fileExtension)
+
+      // Copy input file
+      try fileManager.copyItem(at: task.sourceURL, to: tempInput)
+
+      return [
+        "inputPath": tempInput.path,
+        "outputPath": tempOutput.path,
+        "options": [
+          "maxWidth": task.preset.maxWidth,
+          "maxHeight": task.preset.maxHeight,
+          "format": task.preset.format.rawValue,
+          "quality": task.preset.quality,
+        ],
+      ]
     }
 
-    // Prepare options for the Node script
-    let options: [String: Any] = [
-      "maxWidth": preset.maxWidth,
-      "maxHeight": preset.maxHeight,
-      "format": preset.format.rawValue,
-      "quality": preset.quality,
-    ]
-    print("⚙️ Node script options: \(options)")
-
-    let optionsJSON = try JSONSerialization.data(withJSONObject: options)
-    let optionsString = String(data: optionsJSON, encoding: .utf8)!
+    // Write batch configuration
+    let batchConfig = ["tasks": batchTasks]
+    let configData = try JSONSerialization.data(
+      withJSONObject: batchConfig, options: .prettyPrinted)
+    try configData.write(to: batchDir.appendingPathComponent("batch-config.json"))
 
     // Create and configure the Node process
     let process = Process()
     process.executableURL = URL(fileURLWithPath: nodeBinaryPath)
-    print("🔧 Node binary path: \(nodeBinaryPath)")
-    print("📜 Node script path: \(nodeScriptPath)")
+    process.arguments = [nodeScriptPath, batchDir.path]
 
-    // Set up environment variables
     var env = ProcessInfo.processInfo.environment
     env["NODE_PATH"] = nodeModulesPath
+    env["SHARP_CONCURRENCY"] = String(ProcessInfo.processInfo.processorCount)
     process.environment = env
-    print("🌍 NODE_PATH set to: \(nodeModulesPath)")
-
-    process.arguments = [
-      nodeScriptPath,
-      tempInput.path,
-      tempOutput.path,
-      optionsString,
-    ]
-    print("🎯 Process arguments: \(process.arguments ?? [])")
 
     // Set up pipes for output
     let outputPipe = Pipe()
@@ -317,70 +331,66 @@ class ImageProcessor {
     process.standardOutput = outputPipe
     process.standardError = errorPipe
 
-    do {
-      print("▶️ Starting Node process...")
-      try process.run()
-      process.waitUntilExit()
+    // Run the process
+    print("▶️ Starting batch processing...")
+    try process.run()
+    process.waitUntilExit()
 
-      let status = process.terminationStatus
-      print("⏹️ Process terminated with status: \(status)")
+    // Check for errors
+    if process.terminationStatus != 0 {
+      let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+      if let errorString = String(data: errorData, encoding: .utf8) {
+        throw ImageProcessingError.nodejsError(errorString)
+      }
+      throw ImageProcessingError.nodejsError("Unknown error")
+    }
 
-      if status != 0 {
-        let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
-        let outputData = outputPipe.fileHandleForReading.readDataToEndOfFile()
+    // Read results
+    let resultsPath = batchDir.appendingPathComponent("batch-results.json")
+    let resultsData = try Data(contentsOf: resultsPath)
+    let results = try JSONSerialization.jsonObject(with: resultsData) as! [[String: Any]]
 
-        print("📤 Process output: \(String(data: outputData, encoding: .utf8) ?? "none")")
-        print("❌ Process error: \(String(data: errorData, encoding: .utf8) ?? "none")")
+    // Process results and move files to final location
+    var updatedTasks = tasks  // Create mutable copy
+    return try results.enumerated().map { index, result in
+      let task = updatedTasks[index]
 
-        if let errorString = String(data: errorData, encoding: .utf8) {
-          throw ImageProcessingError.nodejsError(errorString)
-        } else {
-          throw ImageProcessingError.nodejsError("Unknown error")
-        }
+      guard result["success"] as? Bool == true,
+        let outputPath = result["outputPath"] as? String
+      else {
+        print("❌ Error processing \(task.sourceURL.lastPathComponent):")
+        let error = result["error"] as? String ?? "Unknown error"
+        throw ImageProcessingError.nodejsError(error)
       }
 
-      // Create final output URL
-      let finalOutput = (outputDirectory ?? url.deletingLastPathComponent())
-        .appendingPathComponent(url.deletingPathExtension().lastPathComponent)
-        .appendingPathExtension(preset.format.fileExtension)
-      print("📝 Final output path: \(finalOutput.path)")
+      let tempOutput = URL(fileURLWithPath: outputPath)
+      let finalOutput = (outputDirectory ?? task.sourceURL.deletingLastPathComponent())
+        .appendingPathComponent(task.sourceURL.deletingPathExtension().lastPathComponent)
+        .appendingPathExtension(task.preset.format.fileExtension)
 
-      // Check if output file exists
-      print("🔍 Checking if output file exists at: \(tempOutput.path)")
-      if fileManager.fileExists(atPath: tempOutput.path) {
-        print("✅ Output file exists")
-      } else {
-        print("❌ Output file not found!")
-        throw ImageProcessingError.failedToSaveImage
-      }
-
-      // Move the processed file to final location
       if fileManager.fileExists(atPath: finalOutput.path) {
-        print("🗑️ Removing existing file at destination")
         try fileManager.removeItem(at: finalOutput)
       }
 
-      do {
-        try fileManager.moveItem(at: tempOutput, to: finalOutput)
-        print("✅ Successfully moved output file to final location")
-      } catch {
-        print("❌ Failed to move output file: \(error)")
-        throw error
+      try fileManager.moveItem(at: tempOutput, to: finalOutput)
+
+      // Delete original if requested
+      if task.preset.deleteOriginal {
+        try? fileManager.removeItem(at: task.sourceURL)
       }
 
-      // Clean up temp directory
-      try? fileManager.removeItem(at: tempDir)
-      print("🧹 Cleaned up temporary directory")
+      updatedTasks[index] = task
 
-      print("✅ Image processing completed successfully")
       return finalOutput
-    } catch {
-      print("❌ Process failed with error: \(error)")
-      // Clean up temp directory on error
-      try? fileManager.removeItem(at: tempDir)
-      print("🧹 Cleaned up temporary directory after error")
-      throw ImageProcessingError.nodejsError(error.localizedDescription)
     }
+  }
+
+  func processImage(at url: URL, preset: ConversionPreset, outputDirectory: URL?) async throws
+    -> URL
+  {
+    let task = ConversionTask(sourceURL: url, preset: preset)
+    let results = try await processBatch([task], outputDirectory: outputDirectory)
+    return results[0]
   }
 }
 

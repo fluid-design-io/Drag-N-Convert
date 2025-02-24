@@ -28,6 +28,38 @@
         }
       }
     },
+    "%@ (%lld%% smaller)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ (%2$lld%% smaller)"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ (缩小了%2$lld%%)"
+          }
+        }
+      }
+    },
+    "%@ → %@ (%lld%% smaller)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ → %2$@ (%3$lld%% smaller)"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ → %2$@ (缩小了%3$lld%%)"
+          }
+        }
+      }
+    },
     "%lld" : {
       "localizations" : {
         "zh-Hans" : {
@@ -424,17 +456,6 @@
         }
       }
     },
-    "Save Changes" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "保存"
-          }
-        }
-      }
-    },
     "Save converted files in:" : {
       "localizations" : {
         "zh-Hans" : {
@@ -481,6 +502,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "图像的最大宽度和高度。"
+          }
+        }
+      }
+    },
+    "Total Size Reduction" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "文件总体减少"
           }
         }
       }
